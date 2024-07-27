@@ -1,15 +1,63 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Alert, StyleSheet} from 'react-native';
+import Home from './app/screens/Home'; 
+import LoginSceen from './app/screens/LoginScreen'; 
+import LogoutScreen from './app/screens/LogoutScreen'; 
+import { useEffect, useState } from 'react';
+import { User, onAuthStateChanged } from 'firebase/auth';
+import { FIREBASE_AUTH } from './FirebaseConfig';
 
-export default function App() {
+const Stack = createNativeStackNavigator(); 
+const InsideStack = createBottomTabNavigator(); 
+
+function InsideLayout(){
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+      <InsideStack.Navigator initialRouteName="Details">
+        <InsideStack.Screen name="Details" component={Home} />
+        <InsideStack.Screen 
+          name="LOG OUT" 
+          component={LogoutScreen} 
+          listeners={{
+            tabPress: e => {
+              e.preventDefault(); 
+              Alert.alert("LOG OUT", "Are you sure you want to log out?",[
+                {
+                  text: 'Cancel',
+                  onPress: () => console.log('Cancel Pressed'),
+                  style: 'cancel',
+                },
+                {text: 'Log out', onPress: ()=> FIREBASE_AUTH.signOut()},
+              ]); 
+            }
+          }}
+        />
+      </InsideStack.Navigator>
+  )
 }
 
+export default function App() {
+
+  const [user, setUser] = useState <User | null>(null)
+
+  useEffect(()=>{
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      setUser(user); 
+    })
+  },[])
+  
+  return (
+    <NavigationContainer> 
+      <Stack.Navigator initialRouteName="Login">
+        {user ? 
+          ( <Stack.Screen name="InsideLayout" component ={InsideLayout} options={{headerShown: false}} /> )
+          : <Stack.Screen name="Login" component={LoginSceen} />
+        }
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -19,3 +67,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
