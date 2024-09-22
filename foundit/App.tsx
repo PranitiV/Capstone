@@ -6,6 +6,7 @@ import Home from './app/screens/Home';
 import LoginSceen from './app/screens/LoginScreen';
 import LogoutScreen from './app/screens/LogoutScreen';
 import Upload from './app/screens/Upload';
+import Profile from './app/screens/Profile';
 import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './FirebaseConfig';
@@ -18,6 +19,7 @@ function InsideLayout() {
     <InsideStack.Navigator initialRouteName="Details">
       <InsideStack.Screen name="Details" component={Home} />
       <InsideStack.Screen name="Upload" component={Upload} />
+      <InsideStack.Screen name="Profile" component={Profile} />
       <InsideStack.Screen
         name="LOG OUT"
         component={LogoutScreen}
