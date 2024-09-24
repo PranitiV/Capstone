@@ -16,8 +16,8 @@ const InsideStack = createBottomTabNavigator();
 function InsideLayout() {
   return (
     <InsideStack.Navigator initialRouteName="Details">
-      <InsideStack.Screen name="Details" component={Home} />
-      <InsideStack.Screen name="Upload" component={Upload} />
+      <InsideStack.Screen name="Details" component={Home} options={{ headerShown: false }} />
+      <InsideStack.Screen name="Upload" component={Upload} options={{ headerShown: false }} />
       <InsideStack.Screen
         name="LOG OUT"
         component={LogoutScreen}
