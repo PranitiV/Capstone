@@ -52,7 +52,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        {true ?
+        {user ?
           (<Stack.Screen name="InsideLayout" component={InsideLayout} options={{ headerShown: false }} />)
           : <Stack.Screen name="Login" component={LoginSceen} />
         }
