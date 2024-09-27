@@ -17,10 +17,16 @@ const InsideStack = createBottomTabNavigator();
 function InsideLayout() {
   return (
     <InsideStack.Navigator initialRouteName="Details">
+<<<<<<< HEAD
       <InsideStack.Screen name="Details" component={Home} />
       <InsideStack.Screen name="Upload" component={Upload} />
       <InsideStack.Screen name="Profile" component={Profile} />
       {/*<InsideStack.Screen
+=======
+      <InsideStack.Screen name="Details" component={Home} options={{ headerShown: false }} />
+      <InsideStack.Screen name="Upload" component={Upload} options={{ headerShown: false }} />
+      <InsideStack.Screen
+>>>>>>> 0016dfc34e3fd46b3b05647c4becf968204c302b
         name="LOG OUT"
         component={LogoutScreen}
         listeners={{
@@ -54,7 +60,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        {user ?
+        {true ?
           (<Stack.Screen name="InsideLayout" component={InsideLayout} options={{ headerShown: false }} />)
           : <Stack.Screen name="Login" component={LoginSceen} />
         }

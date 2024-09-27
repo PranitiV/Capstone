@@ -22,6 +22,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "expo": {
+      "plugins": [
+        [
+          "expo-camera",
+          {
+            "cameraPermission": "Allow foundit to access your camera."
+          }
+        ]
+      ]
     }
   }
 }
