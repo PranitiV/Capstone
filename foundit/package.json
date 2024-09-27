@@ -12,6 +12,7 @@
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
+    "@react-navigation/stack": "^6.4.1",
     "expo": "^51.0.21",
     "expo-camera": "~15.0.16",
     "expo-image-picker": "~15.0.7",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/istanbul-lib-coverage": "^2.0.6",
     "@types/react": "~18.2.45",
     "typescript": "^5.1.3"
   },
