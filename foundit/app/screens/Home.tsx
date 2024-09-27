@@ -19,7 +19,6 @@ import { ref, getDownloadURL } from 'firebase/storage';
 interface LostItem {
   id: string;
   name: string;
-  description: string;
   imageUrl: string;
   reportedBy: string;
 }
@@ -149,11 +148,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#333333',
-  },
-  description: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 16,
   },
   button: {
     backgroundColor: '#007AFF',

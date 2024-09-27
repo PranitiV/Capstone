@@ -19,7 +19,7 @@ export default function CameraComponent() {
         try {
             const photo = await cameraRef.current.takePictureAsync();
             console.log('Photo taken:', photo);
-            setCapturedImage(photo.uri);
+            setCapturedImage(photo?.uri);
         } catch (error) {
             console.error('Failed to take picture:', error);
             Alert.alert('Error', 'Failed to take picture');
