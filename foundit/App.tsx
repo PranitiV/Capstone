@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Alert, StyleSheet } from 'react-native';
 import Home from './app/screens/Home';
 import LoginSceen from './app/screens/LoginScreen';
-import LogoutScreen from './app/screens/LogoutScreen';
+//import LogoutScreen from './app/screens/LogoutScreen';
 import Upload from './app/screens/Upload';
 import Profile from './app/screens/Profile';
 import { useEffect, useState } from 'react';
@@ -20,7 +20,7 @@ function InsideLayout() {
       <InsideStack.Screen name="Details" component={Home} />
       <InsideStack.Screen name="Upload" component={Upload} />
       <InsideStack.Screen name="Profile" component={Profile} />
-      <InsideStack.Screen
+      {/*<InsideStack.Screen
         name="LOG OUT"
         component={LogoutScreen}
         listeners={{
@@ -36,7 +36,7 @@ function InsideLayout() {
             ]);
           }
         }}
-      />
+      /> */}
     </InsideStack.Navigator>
   )
 }
