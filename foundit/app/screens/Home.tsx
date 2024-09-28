@@ -10,52 +10,35 @@ import {
   SafeAreaView,
   StatusBar,
   Dimensions,
-  ListRenderItem,
+  ActivityIndicator,
 } from 'react-native';
-import storage from 'firebase/storage';
-import { ref, getDownloadURL } from 'firebase/storage';
-
-
+import { fetchPosts } from '../services/imageService';
 interface LostItem {
   id: string;
   name: string;
-  description: string;
   imageUrl: string;
-  reportedBy: string;
+  description: string;
+  location: string;
+  createdAt: Date;
+  //reportedBy: string; need to add this into database
 }
 
 const { width } = Dimensions.get('window');
 
-const mockLostItems: LostItem[] = [
-  {
-    id: '1',
-    name: 'Blue Backpack',
-    imageUrl: 'https://via.placeholder.com/300',
-    reportedBy: 'john@example.com'
-  },
-  {
-    id: '2',
-    name: 'Silver Watch',
-    imageUrl: 'https://via.placeholder.com/300',
-    reportedBy: 'sarah@example.com'
-  },
-  {
-    id: '3',
-    name: 'Textbook',
-    imageUrl: 'https://via.placeholder.com/300',
-    reportedBy: 'mike@example.com'
-  },
-  {
-    id: '4',
-    name: 'Umbrella',
-    imageUrl: 'https://via.placeholder.com/300',
-    reportedBy: 'emma@example.com'
-  },
-];
-
 const LostAndFoundApp: React.FC = () => {
-  const [imageUrl, setImageUrl] = useState(null);
-  const [lostItems] = useState<LostItem[]>(mockLostItems);
+  const [lostItems, setLostItems] = useState<LostItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      setLoading(true);
+      const fetchedPosts = await fetchPosts(); // Fetch from Firestore
+      setLostItems(fetchedPosts);
+      setLoading(false);
+    };
+
+    loadPosts();
+  }, []);
 
   const handleContact = (email: string) => {
     Alert.alert(
@@ -63,19 +46,28 @@ const LostAndFoundApp: React.FC = () => {
       `Would you like to contact ${email}?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Yes', onPress: () => console.log(`Contacting ${email}`) }
+        { text: 'Yes', onPress: () => console.log(`Contacting ${email}`) },
       ]
     );
   };
 
-  const renderItem: ListRenderItem<LostItem> = ({ item }) => (
+  const renderItem = ({ item }: { item: LostItem }) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.imageUrl }} style={styles.image} />
+      <Image
+        source={{ uri: item.imageUrl || 'https://via.placeholder.com/300' }}  // Fallback to a placeholder image
+        style={styles.image}
+      />
       <View style={styles.cardContent}>
+        {/* Wrap text content within <Text> components to avoid errors */}
         <Text style={styles.title}>{item.name}</Text>
+        <Text style={styles.description}>Description: {item.description}</Text>
+        <Text style={styles.location}>Location: {item.location}</Text>
+        <Text style={styles.date}>
+          Reported on: {item.createdAt.toLocaleDateString()}
+        </Text>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => handleContact(item.reportedBy)}
+          onPress={() => handleContact('contact@example.com')}  // Replace with actual contact logic
         >
           <Text style={styles.buttonText}>Contact Reporter</Text>
         </TouchableOpacity>
@@ -83,19 +75,26 @@ const LostAndFoundApp: React.FC = () => {
     </View>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>FoundIt</Text>
-        <Text style={styles.headerSubtitle}>Find your lost items or report found ones</Text>
-      </View>
-      <FlatList
-        data={lostItems}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
-      />
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <FlatList
+          data={lostItems}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -150,11 +149,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: '#333333',
   },
-  description: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 16,
-  },
   button: {
     backgroundColor: '#007AFF',
     paddingVertical: 12,
@@ -167,7 +161,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  description: {
+    fontSize: 14,
+    color: '#666',
+  },
+  location: {
+    fontSize: 14,
+    color: '#666',
+  },
+  date: {
+    fontSize: 12,
+    color: '#aaa',
+    marginTop: 8,
+    marginBottom: 6,
+  },
 });
 
 export default LostAndFoundApp;
-
