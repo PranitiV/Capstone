@@ -1,7 +1,14 @@
-import {View, StyleSheet, TextInput, ActivityIndicator, Button, KeyboardAvoidingView} from 'react-native';
-import React, {useState} from 'react'; 
+// ios 290251917885-0fjhcln1d1a1fj7rn3vvle31mi3cbd0b.apps.googleusercontent.com
+// android 290251917885-9jggnk1r5e0uj6qejvm1rlr4df6h71lu.apps.googleusercontent.com
+
+import {View, StyleSheet, TextInput, ActivityIndicator, Button, KeyboardAvoidingView, Platform, Alert} from 'react-native';
+import React, {useEffect, useState} from 'react'; 
 import { FIREBASE_AUTH } from '../../FirebaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const Login = () => {
     const [email, setEmail] = useState(''); 
@@ -9,6 +16,34 @@ const Login = () => {
     const [loading, setLoading] = useState(false); 
 
     const auth = FIREBASE_AUTH; 
+
+    const androidClientId = '290251917885-9jggnk1r5e0uj6qejvm1rlr4df6h71lu.apps.googleusercontent.com';
+    const iosClientId = '290251917885-0fjhcln1d1a1fj7rn3vvle31mi3cbd0b.apps.googleusercontent.com';
+
+    const clientId = Platform.select({
+        ios: iosClientId,
+        android: androidClientId,
+    });
+
+
+    const redirectUri = 'https://auth.expo.io/@jayshah2111/foundit';
+
+    const [request, response, promptAsync] = Google.useAuthRequest({
+        clientId: clientId,
+        redirectUri: redirectUri,
+    });
+
+    useEffect(() => {
+        if (response?.type === 'success') {
+          const { authentication } = response;
+          console.log('Google Sign-In successful:', authentication);
+          Alert.alert('Login Successful!', 'You are now logged in with Google.');
+        }
+    }, [response]);
+    
+    const handleGoogleSignIn = () => {
+        promptAsync();
+    };
 
     const signIn = async () => {
         setLoading(true); 
@@ -49,6 +84,11 @@ const Login = () => {
                 <>
                     <Button title = "Login" onPress={signIn} />
                     <Button title = "Create account" onPress={signUp}/>
+                    <Button
+                        title='Sign In with Google'
+                        disabled={!request}
+                        onPress={handleGoogleSignIn}
+                    />
                 </>
             }
         </KeyboardAvoidingView>

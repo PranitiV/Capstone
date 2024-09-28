@@ -12,13 +12,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jayshah2111.foundit"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.jayshah2111.foundit"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,6 +34,11 @@
           }
         ]
       ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "165736ef-51c4-48c6-b7e7-9ceb6218d870"
+      }
     }
   }
 }
