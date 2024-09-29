@@ -1,145 +1,143 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-  SafeAreaView,
-  StatusBar,
-  Dimensions,
-  ListRenderItem,
-} from 'react-native';
-import storage from 'firebase/storage';
-import { ref, getDownloadURL } from 'firebase/storage';
+import React, { useState, useRef } from 'react';
+import { View, Text, FlatList, Image, StyleSheet, SafeAreaView, TouchableOpacity, Animated, TextInput } from 'react-native';
+import { MapPin, Calendar, Search, Plus, User } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native'
 
-
-interface LostItem {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string;
-  reportedBy: string;
-}
-
-const { width } = Dimensions.get('window');
-
-const mockLostItems: LostItem[] = [
+const items = [
   {
     id: '1',
-    name: 'Blue Backpack',
-    imageUrl: 'https://via.placeholder.com/300',
-    reportedBy: 'john@example.com'
+    title: 'Lost Black Wallet',
+    description: 'Lost my black leather wallet near Central Park. Contains ID and credit cards.',
+    location: 'Central Park, New York',
+    date: '2023-09-15',
+    image: 'https://picsum.photos/seed/wallet/200/200',
+    type: 'lost'
   },
   {
     id: '2',
-    name: 'Silver Watch',
-    imageUrl: 'https://via.placeholder.com/300',
-    reportedBy: 'sarah@example.com'
+    title: 'Found Gold Watch',
+    description: 'Found a gold watch on the subway. Please describe it to claim.',
+    location: 'Subway Station 34th St, New York',
+    date: '2023-09-16',
+    image: 'https://picsum.photos/seed/watch/200/200',
+    type: 'found'
   },
   {
     id: '3',
-    name: 'Textbook',
-    imageUrl: 'https://via.placeholder.com/300',
-    reportedBy: 'mike@example.com'
-  },
-  {
-    id: '4',
-    name: 'Umbrella',
-    imageUrl: 'https://via.placeholder.com/300',
-    reportedBy: 'emma@example.com'
+    title: 'Lost Backpack',
+    description: 'Lost my blue backpack with laptop inside at the library.',
+    location: 'Public Library, Main Branch',
+    date: '2023-09-17',
+    image: 'https://picsum.photos/seed/backpack/200/200',
+    type: 'lost'
   },
 ];
 
-const LostAndFoundApp: React.FC = () => {
-  const [imageUrl, setImageUrl] = useState(null);
-  const [lostItems] = useState<LostItem[]>(mockLostItems);
-
-  const handleContact = (email: string) => {
-    Alert.alert(
-      'Contact Reporter',
-      `Would you like to contact ${email}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Yes', onPress: () => console.log(`Contacting ${email}`) }
-      ]
-    );
-  };
-
-  const renderItem: ListRenderItem<LostItem> = ({ item }) => (
-    <View style={styles.card}>
-      <Image source={{ uri: item.imageUrl }} style={styles.image} />
-      <View style={styles.cardContent}>
-        <Text style={styles.title}>{item.name}</Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => handleContact(item.reportedBy)}
-        >
-          <Text style={styles.buttonText}>Contact Reporter</Text>
-        </TouchableOpacity>
+const ItemCard = ({ item }) => (
+  <View style={styles.card}>
+    <Image source={{ uri: item.image }} style={styles.image} />
+    <View style={styles.cardContent}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.description} numberOfLines={2}>{item.description}</Text>
+      <View style={styles.infoContainer}>
+        <MapPin size={16} color="#666" />
+        <Text style={styles.infoText}>{item.location}</Text>
+      </View>
+      <View style={styles.infoContainer}>
+        <Calendar size={16} color="#666" />
+        <Text style={styles.infoText}>{item.date}</Text>
       </View>
     </View>
-  );
+    <View style={[styles.badge, item.type === 'lost' ? styles.lostBadge : styles.foundBadge]}>
+      <Text style={styles.badgeText}>{item.type}</Text>
+    </View>
+  </View>
+);
+
+export default function LostAndFoundApp() {
+  const navigation = useNavigation();
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const animatedHeight = useRef(new Animated.Value(0)).current;
+
+  const toggleSearch = () => {
+    setIsSearchVisible(!isSearchVisible);
+    Animated.timing(animatedHeight, {
+      toValue: isSearchVisible ? 0 : 50,
+      duration: 700,
+      useNativeDriver: false,
+    }).start();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>FoundIt</Text>
-        <Text style={styles.headerSubtitle}>Find your lost items or report found ones</Text>
+        <Text style={styles.headerTitle}>foundIt</Text>
+        <View style={styles.iconContainer}>
+          <TouchableOpacity onPress={toggleSearch}>
+            <Search size={24} color="#000" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Profile')}>
+            <User size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
       </View>
+      <Animated.View style={[styles.searchBox, { height: animatedHeight }]}>
+        {isSearchVisible && (
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search..."
+            placeholderTextColor="#999"
+          />
+        )}
+      </Animated.View>
       <FlatList
-        data={lostItems}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
+        data={items}
+        renderItem={({ item }) => <ItemCard item={item} />}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.list}
       />
+      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Upload')}>
+        <Plus size={24} color="#FFF" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f0f0',
   },
   header: {
-    padding: 16,
-    backgroundColor: '#ffffff',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333333',
   },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#666666',
-    marginTop: 4,
-  },
-  listContainer: {
+  list: {
     padding: 16,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff',
     borderRadius: 8,
     marginBottom: 16,
+    overflow: 'hidden',
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
   },
   image: {
     width: '100%',
     height: 200,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
   },
   cardContent: {
     padding: 16,
@@ -148,26 +146,77 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#333333',
   },
   description: {
     fontSize: 14,
-    color: '#666666',
-    marginBottom: 16,
+    color: '#666',
+    marginBottom: 8,
   },
-  button: {
+  infoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  infoText: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 4,
+  },
+  badge: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  lostBadge: {
+    backgroundColor: '#FFD700',
+  },
+  foundBadge: {
+    backgroundColor: '#90EE90',
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
     backgroundColor: '#007AFF',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 6,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  iconButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
+  searchBox: {
+    backgroundColor: '#f1f1f1',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  searchInput: {
+    height: 40,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    borderColor: '#ddd',
+    borderWidth: 1,
+  },
+  iconContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
 });
-
-export default LostAndFoundApp;
-
