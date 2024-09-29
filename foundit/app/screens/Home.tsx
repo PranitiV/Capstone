@@ -26,7 +26,6 @@ export default function LostAndFoundApp() {
     const loadPosts = async () => {
       try {
         const fetchedPosts = await fetchPosts(); // Fetch from Firestore
-        fetchedPosts.forEach((post) => console.log(post)); // Log the fetched posts
         setLostItems(fetchedPosts);
       } catch (error) {
         console.error("Error fetching posts: ", error); // Log any errors
