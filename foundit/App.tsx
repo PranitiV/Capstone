@@ -1,11 +1,11 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Home from './app/screens/Home';
 import LoginSceen from './app/screens/LoginScreen';
-import LogoutScreen from './app/screens/LogoutScreen';
-import Upload from './app/screens/Upload';
+import CameraComponent from './app/screens/Camera';
+import Profile from './app/screens/Profile';
 import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './FirebaseConfig';
@@ -16,25 +16,9 @@ const InsideStack = createBottomTabNavigator();
 function InsideLayout() {
   return (
     <InsideStack.Navigator initialRouteName="Details">
-      <InsideStack.Screen name="Details" component={Home} options={{ headerShown: false }} />
-      <InsideStack.Screen name="Upload" component={Upload} options={{ headerShown: false }} />
-      <InsideStack.Screen
-        name="LOG OUT"
-        component={LogoutScreen}
-        listeners={{
-          tabPress: e => {
-            e.preventDefault();
-            Alert.alert("LOG OUT", "Are you sure you want to log out?", [
-              {
-                text: 'Cancel',
-                onPress: () => console.log('Cancel Pressed'),
-                style: 'cancel',
-              },
-              { text: 'Log out', onPress: () => FIREBASE_AUTH.signOut() },
-            ]);
-          }
-        }}
-      />
+      <InsideStack.Screen name="Details" component={Home} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
+      <InsideStack.Screen name="Upload" component={CameraComponent} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
+      <InsideStack.Screen name="Profile" component={Profile} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
     </InsideStack.Navigator>
   )
 }

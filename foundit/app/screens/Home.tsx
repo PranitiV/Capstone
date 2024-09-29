@@ -1,144 +1,159 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-  SafeAreaView,
-  StatusBar,
-  Dimensions,
-  ActivityIndicator,
-} from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, FlatList, Image, StyleSheet, SafeAreaView, TouchableOpacity, Animated, TextInput, ActivityIndicator, StatusBar } from 'react-native';
+import { MapPin, Calendar, Search, Plus, User } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
+
 interface LostItem {
   id: string;
   name: string;
   imageUrl: string;
   description: string;
   location: string;
-  createdAt: Date;
-  //reportedBy: string; need to add this into database
+  date: Date;
+  type: string;
 }
 
-const { width } = Dimensions.get('window');
 
-const LostAndFoundApp: React.FC = () => {
+export default function LostAndFoundApp() {
+  const navigation = useNavigation();
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const animatedHeight = useRef(new Animated.Value(0)).current;
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const loadPosts = async () => {
-      setLoading(true);
-      const fetchedPosts = await fetchPosts(); // Fetch from Firestore
-      setLostItems(fetchedPosts);
-      setLoading(false);
+      try {
+        const fetchedPosts = await fetchPosts(); // Fetch from Firestore
+        fetchedPosts.forEach((post) => console.log(post)); // Log the fetched posts
+        setLostItems(fetchedPosts);
+      } catch (error) {
+        console.error("Error fetching posts: ", error); // Log any errors
+      }
     };
-
+  
     loadPosts();
   }, []);
 
-  const handleContact = (email: string) => {
-    Alert.alert(
-      'Contact Reporter',
-      `Would you like to contact ${email}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Yes', onPress: () => console.log(`Contacting ${email}`) },
-      ]
-    );
+  const toggleSearch = () => {
+    setIsSearchVisible(!isSearchVisible);
+    Animated.timing(animatedHeight, {
+      toValue: isSearchVisible ? 0 : 50,
+      duration: 700,
+      useNativeDriver: false,
+    }).start();
   };
 
-  const renderItem = ({ item }: { item: LostItem }) => (
+  const ItemCard = ({ item }: { item: LostItem }) => (
     <View style={styles.card}>
+      {/* Image */}
       <Image
-        source={{ uri: item.imageUrl || 'https://via.placeholder.com/300' }}  // Fallback to a placeholder image
+        source={{ uri: item.imageUrl || 'https://via.placeholder.com/200' }} // Fallback image
         style={styles.image}
       />
+      
       <View style={styles.cardContent}>
-        {/* Wrap text content within <Text> components to avoid errors */}
-        <Text style={styles.title}>{item.name}</Text>
-        <Text style={styles.description}>Description: {item.description}</Text>
-        <Text style={styles.location}>Location: {item.location}</Text>
-        <Text style={styles.date}>
-          Reported on: {item.createdAt.toLocaleDateString()}
-        </Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => handleContact('contact@example.com')}  // Replace with actual contact logic
-        >
-          <Text style={styles.buttonText}>Contact Reporter</Text>
-        </TouchableOpacity>
+        {/* Name */}
+        <Text style={styles.title}>{item.name || 'Unknown Item'}</Text>
+  
+        {/* Description */}
+        <Text style={styles.description} numberOfLines={2}>{item.description || 'No description available'}</Text>
+  
+        {/* Location with Icon */}
+        <View style={styles.infoContainer}>
+          <MapPin size={16} color="#666" />
+          <Text style={styles.infoText}>{item.location || 'Unknown Location'}</Text>
+        </View>
+  
+        {/* Date with Icon */}
+        <View style={styles.infoContainer}>
+          <Calendar size={16} color="#666" />
+          <Text style={styles.infoText}>{new Date(item.date).toLocaleDateString() || 'Unknown Date'}</Text>
+        </View>
+      </View>
+  
+      {/* Badge */}
+      <View style={[styles.badge, item.type === 'lost' ? styles.lostBadge : styles.foundBadge]}>
+        <Text style={styles.badgeText}>{item.type || 'Unknown Type'}</Text>
       </View>
     </View>
   );
+  
+  
 
-  if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>foundIt</Text>
+        <View style={styles.iconContainer}>
+          <TouchableOpacity onPress={toggleSearch}>
+            <Search size={24} color="#000" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Profile')}>
+            <User size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <Animated.View style={[styles.searchBox, { height: animatedHeight }]}>
+        {isSearchVisible && (
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search..."
+            placeholderTextColor="#999"
+          />
+        )}
+      </Animated.View>
       <StatusBar barStyle="dark-content" />
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <FlatList
-          data={lostItems}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-        />
-      )}
+      <FlatList
+        data={lostItems}
+        renderItem={({ item }) => <ItemCard item={item} />}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.list}
+      />
+      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Upload')}>
+        <Plus size={24} color="#FFF" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f0f0',
   },
   header: {
-    padding: 16,
-    backgroundColor: '#ffffff',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333333',
   },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#666666',
-    marginTop: 4,
-  },
-  listContainer: {
+  list: {
     padding: 16,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff',
     borderRadius: 8,
     marginBottom: 16,
+    overflow: 'hidden',
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
   },
   image: {
     width: '100%',
     height: 200,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
   },
   cardContent: {
     padding: 16,
@@ -147,39 +162,77 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#333333',
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   description: {
     fontSize: 14,
     color: '#666',
+    marginBottom: 8,
   },
-  location: {
-    fontSize: 14,
-    color: '#666',
+  infoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
   },
-  date: {
+  infoText: {
     fontSize: 12,
-    color: '#aaa',
-    marginTop: 8,
-    marginBottom: 6,
+    color: '#666',
+    marginLeft: 4,
+  },
+  badge: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  lostBadge: {
+    backgroundColor: '#FFD700',
+  },
+  foundBadge: {
+    backgroundColor: '#90EE90',
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    backgroundColor: '#007AFF',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  iconButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
+  searchBox: {
+    backgroundColor: '#f1f1f1',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  searchInput: {
+    height: 40,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    borderColor: '#ddd',
+    borderWidth: 1,
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
-
-export default LostAndFoundApp;
