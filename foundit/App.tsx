@@ -1,11 +1,10 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Home from './app/screens/Home';
 import LoginSceen from './app/screens/LoginScreen';
-import LogoutScreen from './app/screens/LogoutScreen';
-import Upload from './app/screens/Upload';
+import CameraComponent from './app/screens/Camera';
 import Profile from './app/screens/Profile';
 import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
@@ -17,9 +16,9 @@ const InsideStack = createBottomTabNavigator();
 function InsideLayout() {
   return (
     <InsideStack.Navigator initialRouteName="Details">
-      <InsideStack.Screen name="Details" component={Home} />
-      <InsideStack.Screen name="Upload" component={Upload} />
-      <InsideStack.Screen name="Profile" component={Profile} />
+      <InsideStack.Screen name="Details" component={Home} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
+      <InsideStack.Screen name="Upload" component={CameraComponent} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
+      <InsideStack.Screen name="Profile" component={Profile} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
     </InsideStack.Navigator>
   )
 }
@@ -37,7 +36,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        {user ?
+        {true ?
           (<Stack.Screen name="InsideLayout" component={InsideLayout} options={{ headerShown: false }} />)
           : <Stack.Screen name="Login" component={LoginSceen} />
         }
