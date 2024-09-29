@@ -1,10 +1,10 @@
 import { ref, listAll, getDownloadURL, getStorage } from 'firebase/storage';
-import { storage, FIREBASE_DB } from '../../FirebaseConfig';
+import { storage, db } from '../../FirebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 
 // Function to fetch posts from Firestore
 export const fetchPosts = async () => {
-    const postsCollection = collection(FIREBASE_DB, 'items'); // Assuming 'posts' is the name of your Firestore collection
+    const postsCollection = collection(db, 'items'); // Assuming 'posts' is the name of your Firestore collection
     const postsSnapshot = await getDocs(postsCollection);
     
     // Map over the Firestore documents to extract data and convert 'createdAt' to Date
@@ -13,12 +13,13 @@ export const fetchPosts = async () => {
       
       // Ensure that the required fields exist
       return {
-        id: doc.id,
+        id: doc.id || 'Not Found',
         name: data.name || 'Unknown', // Fallback to 'Unknown' if missing
         imageUrl: data.imageUrl || '', // Fallback to empty string if missing
         description: data.description || 'No description available', // Fallback if missing
         location: data.location || 'Unknown location', // Fallback if missing
-        createdAt: data.createdAt?.toDate() || new Date(), // Fallback to current date if missing
+        date: data.createdAt?.toDate() || new Date(), // Fallback to current date if missing
+        type: 'lost',
       };
     });
   
