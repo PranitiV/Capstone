@@ -1,63 +1,39 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, SafeAreaView, TouchableOpacity, Animated, TextInput } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, FlatList, Image, StyleSheet, SafeAreaView, TouchableOpacity, Animated, TextInput, ActivityIndicator, StatusBar } from 'react-native';
 import { MapPin, Calendar, Search, Plus, User } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native';
+import { fetchPosts } from '../services/imageService';
 
-const items = [
-  {
-    id: '1',
-    title: 'Lost Black Wallet',
-    description: 'Lost my black leather wallet near Central Park. Contains ID and credit cards.',
-    location: 'Central Park, New York',
-    date: '2023-09-15',
-    image: 'https://picsum.photos/seed/wallet/200/200',
-    type: 'lost'
-  },
-  {
-    id: '2',
-    title: 'Found Gold Watch',
-    description: 'Found a gold watch on the subway. Please describe it to claim.',
-    location: 'Subway Station 34th St, New York',
-    date: '2023-09-16',
-    image: 'https://picsum.photos/seed/watch/200/200',
-    type: 'found'
-  },
-  {
-    id: '3',
-    title: 'Lost Backpack',
-    description: 'Lost my blue backpack with laptop inside at the library.',
-    location: 'Public Library, Main Branch',
-    date: '2023-09-17',
-    image: 'https://picsum.photos/seed/backpack/200/200',
-    type: 'lost'
-  },
-];
+interface LostItem {
+  id: string;
+  name: string;
+  imageUrl: string;
+  description: string;
+  location: string;
+  date: Date;
+  type: string;
+}
 
-const ItemCard = ({ item }) => (
-  <View style={styles.card}>
-    <Image source={{ uri: item.image }} style={styles.image} />
-    <View style={styles.cardContent}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description} numberOfLines={2}>{item.description}</Text>
-      <View style={styles.infoContainer}>
-        <MapPin size={16} color="#666" />
-        <Text style={styles.infoText}>{item.location}</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Calendar size={16} color="#666" />
-        <Text style={styles.infoText}>{item.date}</Text>
-      </View>
-    </View>
-    <View style={[styles.badge, item.type === 'lost' ? styles.lostBadge : styles.foundBadge]}>
-      <Text style={styles.badgeText}>{item.type}</Text>
-    </View>
-  </View>
-);
 
 export default function LostAndFoundApp() {
   const navigation = useNavigation();
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
+  const [lostItems, setLostItems] = useState<LostItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const fetchedPosts = await fetchPosts(); // Fetch from Firestore
+        setLostItems(fetchedPosts);
+      } catch (error) {
+        console.error("Error fetching posts: ", error); // Log any errors
+      }
+    };
+  
+    loadPosts();
+  }, []);
 
   const toggleSearch = () => {
     setIsSearchVisible(!isSearchVisible);
@@ -67,6 +43,44 @@ export default function LostAndFoundApp() {
       useNativeDriver: false,
     }).start();
   };
+
+  const ItemCard = ({ item }: { item: LostItem }) => (
+    <View style={styles.card}>
+      {/* Image */}
+      <Image
+        source={{ uri: item.imageUrl || 'https://via.placeholder.com/200' }} // Fallback image
+        style={styles.image}
+      />
+      
+      <View style={styles.cardContent}>
+        {/* Name */}
+        <Text style={styles.title}>{item.name || 'Unknown Item'}</Text>
+  
+        {/* Description */}
+        <Text style={styles.description} numberOfLines={2}>{item.description || 'No description available'}</Text>
+  
+        {/* Location with Icon */}
+        <View style={styles.infoContainer}>
+          <MapPin size={16} color="#666" />
+          <Text style={styles.infoText}>{item.location || 'Unknown Location'}</Text>
+        </View>
+  
+        {/* Date with Icon */}
+        <View style={styles.infoContainer}>
+          <Calendar size={16} color="#666" />
+          <Text style={styles.infoText}>{new Date(item.date).toLocaleDateString() || 'Unknown Date'}</Text>
+        </View>
+      </View>
+  
+      {/* Badge */}
+      <View style={[styles.badge, item.type === 'lost' ? styles.lostBadge : styles.foundBadge]}>
+        <Text style={styles.badgeText}>{item.type || 'Unknown Type'}</Text>
+      </View>
+    </View>
+  );
+  
+  
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -90,8 +104,9 @@ export default function LostAndFoundApp() {
           />
         )}
       </Animated.View>
+      <StatusBar barStyle="dark-content" />
       <FlatList
-        data={items}
+        data={lostItems}
         renderItem={({ item }) => <ItemCard item={item} />}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
