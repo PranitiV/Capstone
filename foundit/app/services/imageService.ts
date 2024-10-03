@@ -1,11 +1,12 @@
 import { ref, listAll, getDownloadURL, getStorage } from 'firebase/storage';
 import { storage, db } from '../../FirebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 // Function to fetch posts from Firestore
 export const fetchPosts = async () => {
-    const postsCollection = collection(db, 'items'); // Assuming 'posts' is the name of your Firestore collection
-    const postsSnapshot = await getDocs(postsCollection);
+  const postsQuery = query(collection(db, 'items'), orderBy('createdAt', 'desc'));
+    
+  const postsSnapshot = await getDocs(postsQuery);
     
     // Map over the Firestore documents to extract data and convert 'createdAt' to Date
     const posts = postsSnapshot.docs.map(doc => {
