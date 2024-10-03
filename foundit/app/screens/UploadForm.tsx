@@ -5,7 +5,9 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/core';
 import styles from '../styles/Camera';
-import { CircleX as Cancel } from 'lucide-react-native'
+import { CircleX as Cancel } from 'lucide-react-native';
+import { getAuth } from 'firebase/auth';
+import { Picker } from '@react-native-picker/picker';
 
 
 export default function UploadForm({ capturedImage, reloadPage }: { capturedImage: any, reloadPage: () => void }) {
@@ -32,6 +34,14 @@ export default function UploadForm({ capturedImage, reloadPage }: { capturedImag
         setUploading(true);
 
         try {
+            const auth = getAuth();
+            const currentUser = auth.currentUser;
+
+            if (!currentUser) {
+                Alert.alert('Error', 'You must be logged in to post an item');
+                return;
+            }
+
             const response = await fetch(capturedImage);
             const blob = await response.blob();
             const filename = capturedImage.substring(capturedImage.lastIndexOf('/') + 1);
@@ -45,7 +55,8 @@ export default function UploadForm({ capturedImage, reloadPage }: { capturedImag
                 location: itemLocation,
                 description: itemDescription,
                 imageUrl: downloadURL,
-                createdAt: new Date()
+                createdAt: new Date(),
+                postedBy: currentUser.uid
             });
 
             console.log('Document written with ID: ', docRef.id);
@@ -83,6 +94,17 @@ export default function UploadForm({ capturedImage, reloadPage }: { capturedImag
                     value={itemLocation}
                     onChangeText={setItemLocation}
                 />
+                <Text style={styles.label}>Where did you find it?</Text>
+                        <Picker
+                            selectedValue={itemLocation}
+                            onValueChange={(itemValue) => setItemLocation(itemValue)}
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="Bahen" value="Bahen" />
+                            <Picker.Item label="Sanford Fleming" value="Sanford Fleming" />
+                            <Picker.Item label="Myhall" value="Myhall" />
+                            <Picker.Item label="Other" value="Other" />
+                        </Picker>
                 <TextInput
                     style={styles.input}
                     placeholder="Description"

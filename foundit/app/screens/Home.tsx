@@ -7,7 +7,7 @@ import { MapPin, Calendar, Search, Plus, User, Camera, Image as ImageIcon } from
 import { useNavigation } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
 
-interface LostItem {
+export interface LostItem {
   id: string;
   name: string;
   imageUrl: string;
