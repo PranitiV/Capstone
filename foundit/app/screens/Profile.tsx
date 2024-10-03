@@ -28,7 +28,7 @@ const Profile = () => {
   useEffect(() => {
     const currentUser = FIREBASE_AUTH.currentUser;
     if (currentUser) {
-      console.log('Current user:', currentUser);
+      // console.log('Current user:', currentUser);
       setUser(currentUser);
       fetchUserData(currentUser.uid); 
     }
@@ -49,12 +49,12 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserItems = async () => {
       if (!user) return;
-      console.log('User in fetchUserItems:', user.uid);
+      // console.log('User in fetchUserItems:', user.uid);
       setLoading(true);
       try {
         const q = query(collection(db, 'items'), where('postedBy', '==', user.uid));
         const querySnapshot = await getDocs(q);
-        console.log('Query Snapshot: ', querySnapshot.docs);
+        // console.log('Query Snapshot: ', querySnapshot.docs);
         const items = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -257,7 +257,7 @@ const Profile = () => {
           renderItem={({ item }) => (
             <View style={styles.itemContainer}>
               <Text style={styles.itemTitle}>{item.name}</Text>
-              <Text style={styles.itemDescription}>{item.description}</Text>
+              <Text style={styles.itemLocation}>{item.location}</Text>
               {/* <Text style={styles.itemTimestamp}>Posted on: {new Date(item.timestamp?.seconds * 1000).toLocaleDateString()}</Text> */}
             </View>
           )}
@@ -293,19 +293,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20, // Add horizontal padding for modal content
   },
   modalContent: {
     width: '80%',
     backgroundColor: '#fff',
-    padding: 15,
+    padding: 20, // Increased padding inside the modal
     borderRadius: 8,
   },
   input: {
     width: '100%',
     padding: 10,
-    marginVertical: 5,
+    marginVertical: 10, // Added more vertical spacing between input fields
     borderWidth: 1,
     borderRadius: 4,
+    borderColor: '#ccc',
   },
   editButton: {
     position: 'absolute',
@@ -320,25 +322,23 @@ const styles = StyleSheet.create({
   itemContainer: {
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-    paddingVertical: 10,
+    paddingVertical: 15, // More padding for each item in the list
     width: '100%',
   },
   itemTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 5, // Small space between title and description
   },
-  itemDescription: {
+  itemLocation: {
     fontSize: 14,
     color: '#555',
-  },
-  itemTimestamp: {
-    fontSize: 12,
-    color: '#999',
   },
   noItemsText: {
     textAlign: 'center',
     fontSize: 16,
     color: '#999',
+    marginTop: 20, // Added space between the message and the rest of the content
   },
 });
 
