@@ -87,4 +87,20 @@ export default styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    picker: {
+        height: 50,
+        width: '100%',
+        backgroundColor: '#fff',
+        color: '#000', 
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 5,
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: "white",
+        marginBottom: 8,
+    },
 });
