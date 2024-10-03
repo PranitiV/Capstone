@@ -5,6 +5,14 @@ import { SwitchCamera as Flip, CircleX as Cancel } from 'lucide-react-native'
 import { useNavigation } from '@react-navigation/core';
 import styles from '../styles/Camera'
 import UploadForm from './UploadForm';
+import { storage, db } from '../../FirebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, addDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { Picker } from '@react-native-picker/picker';
+
+const WINDOW_HEIGHT = Dimensions.get('window').height;
+const CAPTURE_SIZE = Math.floor(WINDOW_HEIGHT * 0.08);
 
 export default function CameraComponent() {
     const navigation = useNavigation();
