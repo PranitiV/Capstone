@@ -11,8 +11,6 @@ import { collection, addDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { Picker } from '@react-native-picker/picker';
 
-const WINDOW_HEIGHT = Dimensions.get('window').height;
-const CAPTURE_SIZE = Math.floor(WINDOW_HEIGHT * 0.08);
 
 export default function CameraComponent() {
     const navigation = useNavigation();
