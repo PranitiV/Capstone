@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react'
-import { Text, View, StyleSheet, Image, Button, Alert, Modal, TextInput, FlatList, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native'
-import { FIREBASE_AUTH, db } from '../../FirebaseConfig'
-import { User } from 'firebase/auth'
-import { getAuth, signOut } from 'firebase/auth';
-import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth'
+import React, { useState, useEffect } from 'react';
+import { Text, View, Button, Alert, Modal, FlatList, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native';
+import { FIREBASE_AUTH, db } from '../../FirebaseConfig';
+import { User } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import {LostItem} from "./Home"
+import {LostItem} from "./Home";
 import { doc, setDoc, getDoc } from 'firebase/firestore'; 
 import { Ionicons } from '@expo/vector-icons';
+import styles from '../styles/Profile';
 
 
 const Profile = () => {
@@ -28,7 +29,6 @@ const Profile = () => {
   useEffect(() => {
     const currentUser = FIREBASE_AUTH.currentUser;
     if (currentUser) {
-      // console.log('Current user:', currentUser);
       setUser(currentUser);
       fetchUserData(currentUser.uid); 
     }
@@ -49,12 +49,10 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserItems = async () => {
       if (!user) return;
-      // console.log('User in fetchUserItems:', user.uid);
       setLoading(true);
       try {
         const q = query(collection(db, 'items'), where('postedBy', '==', user.uid));
         const querySnapshot = await getDocs(q);
-        // console.log('Query Snapshot: ', querySnapshot.docs);
         const items = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -140,7 +138,6 @@ const Profile = () => {
             {name}
           </Text>
         ) : null}
-        {/* Display the email label in bold and the email in regular */}
         <Text style={styles.text}>
           <Text style={styles.label}>Email: </Text>
           {user.email}
@@ -268,78 +265,5 @@ const Profile = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  username: {
-    fontSize: 32, 
-    fontWeight: 'bold',
-    marginBottom: 10, 
-  },
-  label: {
-    fontSize: 18,
-    fontWeight: 'bold', 
-  },
-  text: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20, // Add horizontal padding for modal content
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#fff',
-    padding: 20, // Increased padding inside the modal
-    borderRadius: 8,
-  },
-  input: {
-    width: '100%',
-    padding: 10,
-    marginVertical: 10, // Added more vertical spacing between input fields
-    borderWidth: 1,
-    borderRadius: 4,
-    borderColor: '#ccc',
-  },
-  editButton: {
-    position: 'absolute',
-    top: 50,
-    right: 50,
-  },
-  settingsButton: {
-    position: 'absolute',
-    top: 50,
-    right: 10,
-  },
-  itemContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingVertical: 15, // More padding for each item in the list
-    width: '100%',
-  },
-  itemTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5, // Small space between title and description
-  },
-  itemLocation: {
-    fontSize: 14,
-    color: '#555',
-  },
-  noItemsText: {
-    textAlign: 'center',
-    fontSize: 16,
-    color: '#999',
-    marginTop: 20, // Added space between the message and the rest of the content
-  },
-});
 
 export default Profile;

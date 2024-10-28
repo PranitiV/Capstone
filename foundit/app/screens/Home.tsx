@@ -114,7 +114,6 @@ export default function LostAndFoundApp() {
   };
 
   function reloadPage() {
-    console.log('reload page called');
     setPickedImage(null);
   }
 

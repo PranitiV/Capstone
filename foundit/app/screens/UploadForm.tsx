@@ -9,7 +9,6 @@ import { CircleX as Cancel } from 'lucide-react-native';
 import { getAuth } from 'firebase/auth';
 import { Picker } from '@react-native-picker/picker';
 
-
 export default function UploadForm({ capturedImage, reloadPage }: { capturedImage: any, reloadPage: () => void }) {
     const navigation = useNavigation();
     const [uploading, setUploading] = useState(false);
