@@ -1,6 +1,5 @@
 import Home from './app/screens/Home';
 import LoginSceen from './app/screens/LoginScreen';
-import CameraComponent from './app/screens/Camera';
 import Profile from './app/screens/Profile';
 import UploadForm from './app/screens/UploadForm';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
@@ -20,7 +19,7 @@ function InsideLayout() {
   return (
     <InsideStack.Navigator initialRouteName="Details">
       <InsideStack.Screen name="Home" component={Home} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
-      <InsideStack.Screen name="Upload" component={CameraComponent} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
+      <InsideStack.Screen name="Upload" component={UploadForm} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
       <InsideStack.Screen 
         name="UploadForm" 
         component={UploadForm as React.ComponentType<object>}
