@@ -55,6 +55,7 @@ function InsideLayout() {
             color="#000"
           />
         ),
+        tabBarStyle: { display: 'none' } 
       }} />
     </InsideStack.Navigator>
   )

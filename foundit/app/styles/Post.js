@@ -54,7 +54,6 @@ export default styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#000',
         padding: 15,
         borderRadius: 10,
         marginTop: 20,
@@ -62,9 +61,9 @@ export default styles = StyleSheet.create({
         alignSelf: 'center',
       },
       chatButtonText: {
-        color: '#FFF',
+        color: '#3b3b3b',
         fontSize: 16,
-        fontWeight: 'bold',
-        marginLeft: 10,
+        fontWeight: '500',
+        marginLeft: 8,
       },
   });

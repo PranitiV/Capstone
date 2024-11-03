@@ -33,7 +33,7 @@ export default function Post() {
           <Text style={styles.infoText}>{new Date(item.date).toLocaleDateString()}</Text>
         </View>
         <TouchableOpacity style={styles.chatButton} onPress={() => console.log('Chat button pressed')}>
-          <MessageCircle size={24} color="#FFF" />
+          <MessageCircle size={24} color="#3b3b3b" />
           <Text style={styles.chatButtonText}>Chat with Reporter</Text>
         </TouchableOpacity>
       </View>
