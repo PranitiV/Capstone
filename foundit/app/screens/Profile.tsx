@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Alert, Modal, FlatList, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native';
-import { FIREBASE_AUTH, db } from '../../FirebaseConfig';
+import { Text, View, Button, Alert, Modal, FlatList, ActivityIndicator, TextInput, TouchableOpacity, Image } from 'react-native';
+import { FIREBASE_AUTH, db, storage } from '../../FirebaseConfig';
 import { User } from 'firebase/auth';
 import { signOut } from 'firebase/auth';
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
@@ -8,7 +8,10 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import {LostItem} from "./Home";
 import { doc, setDoc, getDoc } from 'firebase/firestore'; 
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import styles from '../styles/Profile';
+import placeholder from '../../assets/placeholder.png';
 
 
 const Profile = () => {
@@ -21,10 +24,13 @@ const Profile = () => {
   const [username, setUsername] = useState('');
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false); 
+  const [image, setImage] = useState<string | null>(null);
+
 
   const [userItems, setUserItems] = useState<LostItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const currentUser = FIREBASE_AUTH.currentUser;
@@ -41,6 +47,7 @@ const Profile = () => {
         const userData = userDoc.data();
         setName(userData.name || '');
         setUsername(userData.username || '');
+        setImage(userData.profilePicture || null);
       }
     } catch (error) {
       console.error("Error fetching user data: ", error);
@@ -68,6 +75,40 @@ const Profile = () => {
   
     fetchUserItems();
   }, [user]);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setImage(uri); 
+
+      try {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const userId = FIREBASE_AUTH.currentUser?.uid;
+
+        if (userId) {
+          const storageRef = ref(storage, `users/${userId}/profilePicture.jpg`);
+          await uploadBytes(storageRef, blob);
+          const url = await getDownloadURL(storageRef);
+          const userRef = doc(db, 'users', userId);
+          await setDoc(userRef, { profilePicture: url }, { merge: true });
+          Alert.alert("Success", "Profile picture uploaded successfully.");
+        } else {
+          Alert.alert("Error", "User not authenticated.");
+        }
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+        Alert.alert("Upload Error", "There was an error uploading your image.");
+      }
+    }
+  };
 
   const logOut = () => {
     Alert.alert("LOG OUT", "Are you sure you want to log out?", [
@@ -117,6 +158,7 @@ const Profile = () => {
         await setDoc(userRef, {
           name: name,
           username: username,
+          profilePicture: image,
         }, { merge: true });
         Alert.alert("Success", "Profile updated successfully.");
         setEditModalVisible(false);
@@ -131,17 +173,24 @@ const Profile = () => {
     <View style={styles.container}>
       {user && (
         <>
+        <TouchableOpacity onPress={pickImage}>
+            {image ? (
+              <Image source={{ uri: image }} style={styles.profilePicture} />
+            ) : (
+              <Image source={placeholder} style={styles.profilePicture} />
+            )}
+        </TouchableOpacity>
         {username && <Text style={styles.username}>@{username}</Text>}
-        {name ? (
-          <Text style={styles.text}>
-            <Text style={styles.label}>Name: </Text>
-            {name}
-          </Text>
-        ) : null}
-        <Text style={styles.text}>
-          <Text style={styles.label}>Email: </Text>
-          {user.email}
-        </Text>  
+        {name && (
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Name: </Text>
+              <Text style={styles.text}>{name}</Text>
+            </View>
+          )}
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Email: </Text>
+            <Text style={styles.text}>{user.email}</Text>
+          </View> 
           <TouchableOpacity onPress={() => setEditModalVisible(true)} style={styles.editButton}>
             <Ionicons name="pencil" size={24} color="black" />
           </TouchableOpacity>
