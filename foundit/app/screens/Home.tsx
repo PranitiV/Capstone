@@ -6,6 +6,7 @@ import { View, Text, FlatList, Image, SafeAreaView, TouchableOpacity, Animated, 
 import { MapPin, Calendar, Search, Plus, User, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
+import CachedImage from 'expo-cached-image'
 
 export interface LostItem {
   id: string;
@@ -24,12 +25,15 @@ export default function LostAndFoundApp() {
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
   const [isFabOpen, setIsFabOpen] = useState(false);
   const [pickedImage, setPickedImage] = useState<string | null>();
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchInput = useRef("");
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const animation = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const loadPosts = async () => {
       try {
-        const fetchedPosts = await fetchPosts();
+        const fetchedPosts = await fetchPosts(searchTerm);
         setLostItems(fetchedPosts);
       } catch (error) {
         console.error("Error fetching posts: ", error);
@@ -37,7 +41,16 @@ export default function LostAndFoundApp() {
     };
 
     loadPosts();
-  }, []);
+  }, [searchTerm]);
+
+  const handleSearchChange = (text: string) => {
+    searchInput.current = text;
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+
+    debounceTimeout.current = setTimeout(() => {
+      setSearchTerm(searchInput.current);
+    }, 400); // Debounce delay
+  };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -125,8 +138,10 @@ export default function LostAndFoundApp() {
 
   const ItemCard = ({ item }: { item: LostItem }) => (
     <View style={styles.card}>
-      <Image
-        source={{ uri: item.imageUrl || 'https://via.placeholder.com/200' }} style={styles.image}
+      <CachedImage 
+        source={{uri: item.imageUrl || 'https://via.placeholder.com/200'}}
+        cacheKey={`${item.id}-thumb`}
+        style={styles.image}
       />
 
       <View style={styles.cardContent}>
@@ -170,14 +185,15 @@ export default function LostAndFoundApp() {
             style={styles.searchInput}
             placeholder="Search..."
             placeholderTextColor="#999"
+            onChangeText={handleSearchChange}
           />
         )}
       </Animated.View>
       <StatusBar barStyle="dark-content" />
       <FlatList
         data={lostItems}
-        renderItem={({ item }) => <ItemCard item={item} />}
         keyExtractor={item => item.id}
+        renderItem={({ item }) => <ItemCard item={item} />}
         contentContainerStyle={styles.list}
       />
       <Animated.View style={[styles.fabContainer, cameraStyle]}>
