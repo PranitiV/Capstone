@@ -124,8 +124,6 @@ export default function ReportLostItem() {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Report Lost Item</Text>
-      
       <View style={styles.imageContainer}>
         {image ? (
           <View>

@@ -6,6 +6,7 @@ import { View, Text, FlatList, Image, SafeAreaView, TouchableOpacity, Animated, 
 import { MapPin, Calendar, Search, Plus, User, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
+import CachedImage from 'expo-cached-image'
 
 export interface LostItem {
   id: string;
@@ -24,12 +25,15 @@ export default function LostAndFoundApp() {
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
   const [isFabOpen, setIsFabOpen] = useState(false);
   const [pickedImage, setPickedImage] = useState<string | null>();
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchInput = useRef("");
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const animation = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const loadPosts = async () => {
       try {
-        const fetchedPosts = await fetchPosts();
+        const fetchedPosts = await fetchPosts(searchTerm);
         setLostItems(fetchedPosts);
       } catch (error) {
         console.error("Error fetching posts: ", error);
@@ -37,21 +41,15 @@ export default function LostAndFoundApp() {
     };
 
     loadPosts();
-  }, []);
+  }, [searchTerm]);
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+  const handleSearchChange = (text: string) => {
+    searchInput.current = text;
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
-    if (!result.canceled) {
-      setPickedImage(result.assets[0].uri);
-    }
-
-    toggleFab(); 
+    debounceTimeout.current = setTimeout(() => {
+      setSearchTerm(searchInput.current);
+    }, 400); // Debounce delay
   };
 
   const toggleSearch = () => {
@@ -76,58 +74,17 @@ export default function LostAndFoundApp() {
     setIsFabOpen(!isFabOpen);
   };
 
-  const cameraStyle = {
-    transform: [
-      { scale: animation },
-      {
-        translateY: animation.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, -80],
-        }),
-      },
-    ],
-    opacity: animation,
-  };
-
-  const galleryStyle = {
-    transform: [
-      { scale: animation },
-      {
-        translateY: animation.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, -140],
-        }),
-      },
-    ],
-    opacity: animation,
-  };
-
-  const rotation = {
-    transform: [
-      {
-        rotate: animation.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['0deg', '45deg'],
-        }),
-      },
-    ],
-  };
-
-  function reloadPage() {
-    setPickedImage(null);
-  }
-
   if (pickedImage) {
-    return (
-      <UploadForm capturedImage={pickedImage} reloadPage={reloadPage} />
-    )
+    navigation.navigate('UploadForm' as never); 
   }
 
   const ItemCard = ({ item }: { item: LostItem }) => (
     <TouchableOpacity onPress={() => navigation.navigate('Post', { item })} style={styles.card}>
     <View style={styles.card}>
-      <Image
-        source={{ uri: item.imageUrl || 'https://via.placeholder.com/200' }} style={styles.image}
+      <CachedImage 
+        source={{uri: item.imageUrl || 'https://via.placeholder.com/200'}}
+        cacheKey={`${item.id}-thumb`}
+        style={styles.image}
       />
 
       <View style={styles.cardContent}>
@@ -172,37 +129,26 @@ export default function LostAndFoundApp() {
             style={styles.searchInput}
             placeholder="Search..."
             placeholderTextColor="#999"
+            onChangeText={handleSearchChange}
           />
         )}
       </Animated.View>
       <StatusBar barStyle="dark-content" />
       <FlatList
         data={lostItems}
-        renderItem={({ item }) => <ItemCard item={item} />}
         keyExtractor={item => item.id}
+        renderItem={({ item }) => <ItemCard item={item} />}
         contentContainerStyle={styles.list}
       />
-      <Animated.View style={[styles.fabContainer, cameraStyle]}>
-        <View style={styles.fabLabelContainer}>
-          <Text style={styles.fabLabel}>Upload from gallery</Text>
-        </View>
-        <TouchableOpacity style={styles.fabButton} onPress={pickImage}>
-          <ImageIcon size={24} color="#FFF" />
-        </TouchableOpacity>
-      </Animated.View>
-      <Animated.View style={[styles.fabContainer, galleryStyle]}>
-        <View style={styles.fabLabelContainer}>
-          <Text style={styles.fabLabel}>Take a picture </Text>
-        </View>
-        <TouchableOpacity style={styles.fabButton} onPress={() => navigation.navigate('Upload')}>
-          <Camera size={24} color="#FFF" />
-        </TouchableOpacity>
-      </Animated.View>
-      <Animated.View style={[styles.fabContainer, rotation]}>
-        <TouchableOpacity style={styles.fabButton} onPress={toggleFab}>
+      <View style={styles.reportContainer}>
+        <Text style={styles.reportText}>Report a missing item</Text>
+        <TouchableOpacity 
+          style={styles.reportButton}
+          onPress={() => navigation.navigate('UploadForm')}
+        >
           <Plus size={24} color="#FFF" />
         </TouchableOpacity>
-      </Animated.View>
+      </View>
     </SafeAreaView>
   );
 }
