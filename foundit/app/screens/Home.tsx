@@ -124,6 +124,7 @@ export default function LostAndFoundApp() {
   }
 
   const ItemCard = ({ item }: { item: LostItem }) => (
+    <TouchableOpacity onPress={() => navigation.navigate('Post', { item })} style={styles.card}>
     <View style={styles.card}>
       <Image
         source={{ uri: item.imageUrl || 'https://via.placeholder.com/200' }} style={styles.image}
@@ -149,6 +150,7 @@ export default function LostAndFoundApp() {
         <Text style={styles.badgeText}>{item.type || 'Unknown Type'}</Text>
       </View>
     </View>
+    </TouchableOpacity>
   );
 
   return (

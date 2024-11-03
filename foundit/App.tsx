@@ -2,6 +2,7 @@ import Home from './app/screens/Home';
 import LoginSceen from './app/screens/LoginScreen';
 import Profile from './app/screens/Profile';
 import UploadForm from './app/screens/UploadForm';
+import Post from './app/screens/Post';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -36,6 +37,17 @@ function InsideLayout() {
         ),
         headerTitle: '',
         tabBarStyle: { display: 'none' }
+      }} />
+      <InsideStack.Screen name="Post" component={Post} options={{
+        headerShown: true,
+        title: '', 
+        headerLeft: () => (
+          <Back
+            onPress={() => navigation.goBack()}
+            title="<"
+            color="#000"
+          />
+        ),
       }} />
     </InsideStack.Navigator>
   )
