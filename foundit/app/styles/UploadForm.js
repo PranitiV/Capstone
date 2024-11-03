@@ -64,8 +64,9 @@ export default styles = StyleSheet.create({
     },
     label: {
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: '500',
       marginBottom: 5,
+      color: '#3b3b3b',
     },
     input: {
       borderWidth: 1,
@@ -89,7 +90,7 @@ export default styles = StyleSheet.create({
     },
     locationButtonText: {
       color: '#3b3b3b',
-      fontSize: 16,
+      fontSize: 14,
       fontWeight: '500',
       marginLeft: 8,
     },

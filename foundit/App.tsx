@@ -19,11 +19,18 @@ function InsideLayout() {
   return (
     <InsideStack.Navigator initialRouteName="Details">
       <InsideStack.Screen name="Home" component={Home} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
-      <InsideStack.Screen name="Upload" component={UploadForm} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
-      <InsideStack.Screen 
-        name="UploadForm" 
-        component={UploadForm as React.ComponentType<object>}
-        options={{ headerShown: false, tabBarStyle: { display: 'none' } }} 
+      <InsideStack.Screen name="UploadForm" component={UploadForm as React.ComponentType<object>} options={{ 
+        headerShown: true,
+        headerLeft: () => (
+          <Back
+            onPress={() => navigation.goBack()}
+            title="<"
+            color="#000"
+          />
+        ),
+        headerTitle: 'Report Lost Item', 
+        tabBarStyle: { display: 'none' } 
+      }} 
       />
       <InsideStack.Screen name="Profile" component={Profile} options={{
         headerShown: true,
