@@ -26,11 +26,9 @@ const Profile = () => {
   const [settingsModalVisible, setSettingsModalVisible] = useState(false); 
   const [image, setImage] = useState<string | null>(null);
 
-
   const [userItems, setUserItems] = useState<LostItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const currentUser = FIREBASE_AUTH.currentUser;
