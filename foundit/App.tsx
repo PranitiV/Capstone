@@ -11,7 +11,6 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './FirebaseConfig';
 import { ChevronLeft as Back } from 'lucide-react-native';
 
-
 const Stack = createNativeStackNavigator();
 const InsideStack = createBottomTabNavigator();
 
