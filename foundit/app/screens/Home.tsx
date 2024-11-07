@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from '../styles/Home';
-import * as ImagePicker from 'expo-image-picker';
-import UploadForm from './UploadForm';
-import { View, Text, FlatList, Image, SafeAreaView, TouchableOpacity, Animated, TextInput, StatusBar, Alert } from 'react-native';
-import { MapPin, Calendar, Search, Plus, User, Camera, Image as ImageIcon } from 'lucide-react-native';
+import { View, Text, FlatList, SafeAreaView, TouchableOpacity, Animated, TextInput, StatusBar, ActivityIndicator } from 'react-native';
+import { MapPin, Calendar, Search, Plus, User } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
-import CachedImage from 'expo-cached-image'
+import CachedImage from 'expo-cached-image';
 
 export interface LostItem {
   id: string;
@@ -23,20 +21,21 @@ export default function LostAndFoundApp() {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
-  const [isFabOpen, setIsFabOpen] = useState(false);
-  const [pickedImage, setPickedImage] = useState<string | null>();
   const [searchTerm, setSearchTerm] = useState("");
   const searchInput = useRef("");
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const animation = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const loadPosts = async () => {
+      setIsLoading(true);
       try {
         const fetchedPosts = await fetchPosts(searchTerm);
         setLostItems(fetchedPosts);
       } catch (error) {
         console.error("Error fetching posts: ", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -60,55 +59,50 @@ export default function LostAndFoundApp() {
       useNativeDriver: false,
     }).start();
   };
+  
+  const ItemCard = React.memo(({ item }: { item: LostItem }) => {
+    const [imageLoaded, setImageLoaded] = useState(false);
 
-  const toggleFab = () => {
-    const toValue = isFabOpen ? 0 : 1;
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate('Post', { item })} style={styles.card}>
+        <View style={styles.card}>
+          <View style={styles.imageContainer}>
+            {!imageLoaded && (
+              <View style={styles.imagePlaceholder}>
+                <ActivityIndicator size="small" color="#0000ff" />
+              </View>
+            )}
+            <CachedImage 
+              source={{uri: item.imageUrl || 'https://via.placeholder.com/200'}}
+              cacheKey={`${item.id}-thumb`}
+              style={[styles.image, !imageLoaded && styles.hiddenImage]}
+              onLoad={() => setImageLoaded(true)}
+            />
+          </View>
 
-    Animated.spring(animation, {
-      toValue,
-      friction: 5,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
+          <View style={styles.cardContent}>
+            <Text style={styles.title}>{item.name || 'Unknown Item'}</Text>
 
-    setIsFabOpen(!isFabOpen);
-  };
+            <Text style={styles.description} numberOfLines={2}>{item.description || 'No description available'}</Text>
 
-  if (pickedImage) {
-    navigation.navigate('UploadForm' as never); 
-  }
+            <View style={styles.infoContainer}>
+              <MapPin size={16} color="#666" />
+              <Text style={styles.infoText}>{item.location || 'Unknown Location'}</Text>
+            </View>
 
-  const ItemCard = ({ item }: { item: LostItem }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('Post', { item })} style={styles.card}>
-    <View style={styles.card}>
-      <CachedImage 
-        source={{uri: item.imageUrl || 'https://via.placeholder.com/200'}}
-        cacheKey={`${item.id}-thumb`}
-        style={styles.image}
-      />
+            <View style={styles.infoContainer}>
+              <Calendar size={16} color="#666" />
+              <Text style={styles.infoText}>{new Date(item.date).toLocaleDateString() || 'Unknown Date'}</Text>
+            </View>
+          </View>
 
-      <View style={styles.cardContent}>
-        <Text style={styles.title}>{item.name || 'Unknown Item'}</Text>
-
-        <Text style={styles.description} numberOfLines={2}>{item.description || 'No description available'}</Text>
-
-        <View style={styles.infoContainer}>
-          <MapPin size={16} color="#666" />
-          <Text style={styles.infoText}>{item.location || 'Unknown Location'}</Text>
+          <View style={[styles.badge, item.type === 'lost' ? styles.lostBadge : styles.foundBadge]}>
+            <Text style={styles.badgeText}>{item.type || 'Unknown Type'}</Text>
+          </View>
         </View>
-
-        <View style={styles.infoContainer}>
-          <Calendar size={16} color="#666" />
-          <Text style={styles.infoText}>{new Date(item.date).toLocaleDateString() || 'Unknown Date'}</Text>
-        </View>
-      </View>
-
-      <View style={[styles.badge, item.type === 'lost' ? styles.lostBadge : styles.foundBadge]}>
-        <Text style={styles.badgeText}>{item.type || 'Unknown Type'}</Text>
-      </View>
-    </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -134,12 +128,19 @@ export default function LostAndFoundApp() {
         )}
       </Animated.View>
       <StatusBar barStyle="dark-content" />
-      <FlatList
-        data={lostItems}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => <ItemCard item={item} />}
-        contentContainerStyle={styles.list}
-      />
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3b3b3b" />
+          <Text style={styles.loadingText}>Loading items...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={lostItems}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => <ItemCard item={item} />}
+          contentContainerStyle={styles.list}
+        />
+      )}
       <View style={styles.reportContainer}>
         <Text style={styles.reportText}>Report a missing item</Text>
         <TouchableOpacity 

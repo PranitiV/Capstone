@@ -16,7 +16,6 @@ const Login = () => {
         try {
             const response = await signInWithEmailAndPassword(auth, email, password); 
             
-            // Check if email is verified
             if (response.user.emailVerified) {
                 console.log("Sign-in successful:", response);
                 Alert.alert("Success", "You are now logged in.");
@@ -38,7 +37,7 @@ const Login = () => {
 
         // Check if email ends with "utoronto.ca"
         if (!email.endsWith("utoronto.ca")) {
-            Alert.alert("Invalid Email", "Please use a University of Toronto email address (ending with @utoronto.ca).");
+            Alert.alert("Invalid Email", "Please enter a valid University of Toronto email address (ending with utoronto.ca).");
             setLoading(false);
             return;
         }

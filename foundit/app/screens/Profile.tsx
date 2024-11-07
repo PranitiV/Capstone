@@ -21,7 +21,6 @@ const Profile = ({ navigation }) => {
   const [userItems, setUserItems] = useState<LostItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
