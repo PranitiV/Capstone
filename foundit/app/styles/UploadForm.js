@@ -5,6 +5,7 @@ export default styles = StyleSheet.create({
       flex: 1,
       padding: 20,
       backgroundColor: '#fff',
+      marginBottom: 15,
     },
     title: {
       fontSize: 24,
@@ -108,6 +109,7 @@ export default styles = StyleSheet.create({
       borderRadius: 8,
       padding: 15,
       alignItems: 'center',
+      marginBottom: 25
     },
     disabledButton: {
       opacity: 0.5,
@@ -124,5 +126,44 @@ export default styles = StyleSheet.create({
       color: '#6B7280',
       fontSize: 12,
       textAlign: 'center',
+    },
+    switchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 15,
+    },
+    securityInfoContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 10,
+      backgroundColor: '#f0f0f0',
+      padding: 10,
+      borderRadius: 5,
+    },
+    securityInfoText: {
+      flex: 1,
+      fontSize: 14,
+      color: '#333',
+    },
+    infoIcon: {
+      marginLeft: 10,
+    },
+    securityInfoDetails: {
+      fontSize: 12,
+      color: '#666',
+      marginBottom: 10,
+      fontStyle: 'italic',
+    },
+    switchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 15,
+    },
+    switchWrapper: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: 40, // Adjust this value as needed
     },
 });
