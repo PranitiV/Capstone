@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
-import {View,Text, TextInput, TouchableOpacity, Image, ScrollView, Alert} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Image, ScrollView, Alert, Switch} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
-import { Image as ImageIcon, MapPin } from 'lucide-react-native';
+import { Image as ImageIcon, MapPin, InfoIcon} from 'lucide-react-native';
 import { storage, db } from '../../FirebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
@@ -14,10 +14,15 @@ export default function ReportLostItem() {
   const [image, setImage] = useState(null);
   const [itemName, setItemName] = useState('');
   const [itemLocation, setItemLocation] = useState('');
+  const [itemLocationDescription, setItemLocationDescription] = useState('');
   const [itemDescription, setItemDescription] = useState('');
   const [currentLocation, setCurrentLocation] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  const [isValuableItem, setIsValuableItem] = useState(false);
+  const [securityQuestion, setSecurityQuestion] = useState('');
+  const [securityAnswer, setSecurityAnswer] = useState('');
+  const [showInfo, setShowInfo] = useState(false);
   const mapRef = useRef(null);
 
   const pickImage = async () => {
@@ -73,8 +78,13 @@ export default function ReportLostItem() {
   };
 
   const handleSubmit = async () => {
-    if (!image || !itemName || !itemLocation || !itemDescription) {
+    if (!image || !itemName || !itemLocation || !itemDescription || !itemLocationDescription) {
       Alert.alert('Error', 'Please fill in all fields and upload an image');
+      return;
+    }
+
+    if (isValuableItem && (!securityQuestion || !securityAnswer)) {
+      Alert.alert('Error', 'Please provide a security question and answer for valuable items');
       return;
     }
 
@@ -100,10 +110,14 @@ export default function ReportLostItem() {
       await addDoc(collection(db, "items"), {
         name: itemName,
         location: itemLocation,
+        locationDescription: itemLocationDescription,
         description: itemDescription,
         imageUrl: downloadURL,
         createdAt: new Date(),
-        postedBy: currentUser.uid
+        postedBy: currentUser.uid,
+        isValuableItem,
+        securityQuestion: isValuableItem ? securityQuestion : null,
+        securityAnswer: isValuableItem ? securityAnswer : null,
       });
 
       Alert.alert('Success', 'Item reported successfully!');
@@ -112,8 +126,12 @@ export default function ReportLostItem() {
       setImage(null);
       setItemName('');
       setItemLocation('');
+      setItemLocationDescription('');
       setItemDescription('');
       setCurrentLocation(null);
+      setIsValuableItem(false);
+      setSecurityQuestion('');
+      setSecurityAnswer('');
     } catch (error) {
       console.error('Error uploading data:', error);
       Alert.alert('Error', 'Failed to upload data');
@@ -195,6 +213,14 @@ export default function ReportLostItem() {
         </View>
       )}
 
+      <Text style={styles.label}>Location Description</Text>
+      <TextInput
+        style={[styles.input, styles.textArea]}
+        value={itemLocationDescription}
+        onChangeText={setItemLocationDescription}
+        placeholder="Provide more details about the location (e.g., near which building, which floor, etc.)"
+        multiline
+      />
 
       <Text style={styles.label}>Item Description</Text>
       <TextInput
@@ -204,6 +230,53 @@ export default function ReportLostItem() {
         placeholder="Enter item description"
         multiline
       />
+
+        <View style={styles.switchContainer}>
+        <Text style={styles.label}>Is this a valuable item?</Text>
+        <View style={styles.switchWrapper}>
+          <Switch
+            value={isValuableItem}
+            onValueChange={setIsValuableItem}
+            trackColor={{ false: "#767577", true: "#d4d4d4" }}
+            thumbColor={isValuableItem ? "#636363" : "#b4b4b4"}
+            style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+          />
+        </View>
+        </View>
+
+      {isValuableItem && (
+        <View>
+          <View style={styles.securityInfoContainer}>
+            <Text style={styles.securityInfoText}>
+              Consider adding a security question. A person who claims this item will need to answer this question correctly before the location is revealed to them.
+            </Text>
+            <TouchableOpacity onPress={() => setShowInfo(!showInfo)} style={styles.infoIcon}>
+              <InfoIcon size={20} color="#636363" />
+            </TouchableOpacity>
+          </View>
+          {showInfo && (
+            <Text style={styles.securityInfoDetails}>
+              This helps ensure that the item is returned to its rightful owner. Choose a question that only the true owner would know the answer to.
+            </Text>
+          )}
+          <Text style={styles.label}>Security Question</Text>
+          <TextInput
+            style={styles.input}
+            value={securityQuestion}
+            onChangeText={setSecurityQuestion}
+            placeholder="Enter a security question"
+          />
+
+          <Text style={styles.label}>Security Answer</Text>
+          <TextInput
+            style={styles.input}
+            value={securityAnswer}
+            onChangeText={setSecurityAnswer}
+            placeholder="Enter the answer to your security question"
+            secureTextEntry
+          />
+        </View>
+      )}
 
       <TouchableOpacity
         style={[styles.submitButton, uploading && styles.disabledButton]}
