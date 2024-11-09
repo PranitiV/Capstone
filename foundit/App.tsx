@@ -26,6 +26,7 @@ function InsideLayout() {
             onPress={() => navigation.goBack()}
             title="<"
             color="#000"
+            size={32}
           />
         ),
         headerTitle: 'Report Lost Item', 
@@ -39,6 +40,7 @@ function InsideLayout() {
             onPress={() => navigation.goBack()}
             title="<"
             color="#000"
+            size={32}
           />
         ),
         headerTitle: '',
@@ -52,6 +54,7 @@ function InsideLayout() {
             onPress={() => navigation.goBack()}
             title="<"
             color="#000"
+            size={32}
           />
         ),
         tabBarStyle: { display: 'none' } 
