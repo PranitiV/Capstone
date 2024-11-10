@@ -39,6 +39,9 @@ export const fetchPosts = async (searchTerm = "") => {
         location: data.location || 'Unknown location',
         date: data.createdAt?.toDate() || new Date(),
         type: 'lost',
+        isValuableItem: data.isValuableItem || false,
+        securityQuestion: data.isValuableItem ? data.securityQuestion : null,
+        securityAnswer: data.isValuableItem ? data.securityAnswer : null,
     };
   });
 
