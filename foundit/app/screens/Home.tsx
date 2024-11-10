@@ -10,8 +10,12 @@ export interface LostItem {
   id: string;
   name: string;
   imageUrl: string;
+  isValuableItem: boolean; 
   description: string;
   location: string;
+  locationDescription: string;
+  securityQuestion: string; 
+  securityAnswer: string; 
   date: Date;
   type: string;
 }

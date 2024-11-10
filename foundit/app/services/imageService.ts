@@ -35,10 +35,14 @@ export const fetchPosts = async (searchTerm = "") => {
         id: doc.id || 'Not Found',
         name: data.name || 'Unknown',
         imageUrl: data.imageUrl || '',
+        isValuableItem: data.isValuableItem || "Unknown", 
         description: data.description || 'No description available',
         location: data.location || 'Unknown location',
+        locationDescription: data.locationDescription || "no description available",
         date: data.createdAt?.toDate() || new Date(),
         type: 'lost',
+        securityQuestion: data.securityQuestion || "no security question",
+        securityAnswer: data.securityAnswer || "no security answer",
     };
   });
 
