@@ -17,8 +17,7 @@ const Login = () => {
             const response = await signInWithEmailAndPassword(auth, email, password); 
             
             if (response.user.emailVerified) {
-                console.log("Sign-in successful:", response);
-                Alert.alert("Success", "You are now logged in.");
+                console.log("Sign-in successful");
             } else {
                 Alert.alert("Email Verification Required", "Please verify your email before signing in. A verification link has been sent to your email.");
                 await sendEmailVerification(response.user);
