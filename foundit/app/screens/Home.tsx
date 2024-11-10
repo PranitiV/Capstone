@@ -14,6 +14,9 @@ export interface LostItem {
   location: string;
   date: Date;
   type: string;
+  isValuableItem: boolean; 
+  securityQuestion?: string;
+  securityAnswer?: string;
 }
 
 export default function LostAndFoundApp() {
