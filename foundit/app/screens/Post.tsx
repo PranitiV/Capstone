@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, Alert, ScrollView, SafeAreaView, Modal, Linking } from 'react-native';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
+import { useRoute, RouteProp} from '@react-navigation/native';
 import { MapPin, Calendar, Info, ExternalLink } from 'lucide-react-native';
 import { db } from '../../FirebaseConfig';  
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -34,8 +34,6 @@ export default function Post() {
   const [isClaimed, setIsClaimed] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
 
-  const navigation = useNavigation();
-
   useEffect(() => {
     const fetchSecurityDetails = async () => {
       if (item.isValuableItem) {  
@@ -47,6 +45,9 @@ export default function Post() {
             const data = docSnap.data();
             setSecurityQuestion(data.securityQuestion);  
             setCorrectAnswer(data.securityAnswer);  
+            setIsClaimed(false);
+            setUserAnswer(''); 
+            setIsAnswerCorrect(false); 
           } else {
             console.log('No such item exists');
           }
@@ -105,7 +106,7 @@ export default function Post() {
             <Text style={styles.description}>{item.description}</Text>
           </View>
           
-          {item.isValuableItem && securityQuestion && !isAnswerCorrect && (
+          {item.isValuableItem && securityQuestion && !isAnswerCorrect && !isClaimed && (
             <View style={styles.disclaimerContainer}>
               <View style={styles.disclaimerContent}>
                 <Text style={styles.disclaimerText}>
@@ -123,7 +124,7 @@ export default function Post() {
             </View>
           )}
           
-          {isClaimed || !item.isValuableItem ? (
+          {isAnswerCorrect && (isClaimed || !item.isValuableItem) ? (
             <View style={styles.infoContainer}>
               <MapPin size={20} color="#4a4a4a" />
               <Text style={styles.infoLabel}>Location: </Text>

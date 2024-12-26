@@ -11,7 +11,6 @@ export const fetchPosts = async (searchTerm = "") => {
   const cachedResult = cache.get(cacheKey);
   if(cachedResult){
     if(lowerSearchTerm == ""){
-      console.log(`Serving cached result for query: ${lowerSearchTerm}`);
       return cachedResult;
     } else {
       const filteredPosts = cachedResult.filter((post: { name: string; description: string; }) =>
@@ -50,6 +49,5 @@ export const fetchPosts = async (searchTerm = "") => {
   cache.put(cacheKey, posts, CACHE_DURATION);
 
   // Return the structured posts data
-  console.log('Fetched from Firestore and cached posts');
   return posts;
 };

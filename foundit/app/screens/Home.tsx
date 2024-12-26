@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import styles from '../styles/Home';
 import { View, Text, FlatList, SafeAreaView, TouchableOpacity, Animated, TextInput, StatusBar, ActivityIndicator } from 'react-native';
 import { MapPin, Calendar, Search, Plus, User } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
 import CachedImage from 'expo-cached-image';
 
@@ -21,7 +21,7 @@ export interface LostItem {
 }
 
 export default function LostAndFoundApp() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any, any>>();
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
