@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from '../styles/Home';
 import { View, Text, FlatList, SafeAreaView, TouchableOpacity, Animated, TextInput, StatusBar, ActivityIndicator } from 'react-native';
-import { MapPin, Calendar, Search, Plus, User } from 'lucide-react-native';
+import { MapPin, Calendar, Search, Plus, User, MessageCircle } from 'lucide-react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
 import CachedImage from 'expo-cached-image';
@@ -116,6 +116,12 @@ export default function LostAndFoundApp() {
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Profile')}>
             <User size={24} color="#000" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.iconButton, { paddingLeft: 0 }]}
+            onPress={() => navigation.navigate('ChatsList')}
+          >
+            <MessageCircle size={24} color="#000" />
           </TouchableOpacity>
         </View>
       </View>
