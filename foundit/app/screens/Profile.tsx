@@ -198,6 +198,13 @@ const Profile = ({ navigation }) => {
         </View>
       </View>
 
+      <TouchableOpacity
+        style={{ padding: 10, backgroundColor: 'skyblue', marginTop: 10 }}
+        onPress={() => navigation.navigate('ChatsList')}
+      >
+        <Text style={{ color: '#000' }}>View My Chats</Text>
+      </TouchableOpacity>
+
       <View style={styles.postedItemsSection}>
         <Text style={styles.sectionTitle}>Your Posted Items</Text>
         {loading ? (
