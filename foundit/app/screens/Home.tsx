@@ -16,6 +16,7 @@ import { MapPin, Calendar, Search, Plus, User, X } from 'lucide-react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
 import CachedImage from 'expo-cached-image';
+import { InsideTabParamList } from '../../App';
 
 const { height } = Dimensions.get('window');
 
@@ -32,10 +33,13 @@ export interface LostItem {
   date: Date;
   type: string;
   clarifaiData: string[];
+  postedBy: string,
 }
 
 export default function LostAndFoundApp() {
-  const navigation = useNavigation<NavigationProp<any, any>>();
+  const navigation = useNavigation<NavigationProp<InsideTabParamList>>();
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const animatedHeight = useRef(new Animated.Value(0)).current;
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [inputValue, setInputValue] = useState("");

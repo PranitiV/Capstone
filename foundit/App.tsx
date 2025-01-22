@@ -1,4 +1,4 @@
-import Home from './app/screens/Home';
+import Home, { LostItem } from './app/screens/Home';
 import LoginSceen from './app/screens/LoginScreen';
 import Profile from './app/screens/Profile';
 import UploadForm from './app/screens/UploadForm';
@@ -10,9 +10,33 @@ import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './FirebaseConfig';
 import { ChevronLeft as Back } from 'lucide-react-native';
+import ChatScreen from './app/screens/ChatScreen';
+import ChatsList from './app/screens/ChatList';
 
-const Stack = createNativeStackNavigator();
-const InsideStack = createBottomTabNavigator();
+// RootStackParamList = the outer stack (Login vs InsideLayout)
+export type RootStackParamList = {
+  Login: undefined;
+  InsideLayout: undefined;
+};
+
+// NEW: InsideTabParamList = for the bottom-tab screens (Home, Post, etc.)
+export type InsideTabParamList = {
+  Home: undefined;
+  UploadForm: undefined;
+  Profile: undefined;
+  Details: undefined;
+  Post: {
+    item: any;
+  };
+  Chat: {
+    postOwnerId: string;
+    itemId: string;
+  };
+  ChatsList: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const InsideStack = createBottomTabNavigator<InsideTabParamList>();
 
 function InsideLayout() {
   const navigation = useNavigation();
@@ -59,6 +83,30 @@ function InsideLayout() {
         ),
         tabBarStyle: { display: 'none' } 
       }} />
+      <InsideStack.Screen
+        name="ChatsList"
+        component={ChatsList}
+        options={{
+          headerShown: true,
+          headerLeft: () => (
+            <Back
+              onPress={() => navigation.goBack()}
+              title="<"
+              color="#000"
+              size={32}
+            />
+          ),
+          headerTitle: 'My Chats', 
+          tabBarStyle: { display: 'none' },
+        }}
+      />
+      <InsideStack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </InsideStack.Navigator>
   )
 }
