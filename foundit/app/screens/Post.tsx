@@ -1,16 +1,25 @@
 import React from 'react';
 import { View, Text, Image, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
 import styles from '../styles/Post';
 import { MapPin, Calendar, MessageCircle } from 'lucide-react-native';
+import { InsideTabParamList } from '../../App';
+import { RouteProp } from '@react-navigation/native';
 
 export default function Post() {
-  const navigation = useNavigation();
-  const route = useRoute();
+  const navigation = useNavigation<NavigationProp<InsideTabParamList>>();
+  type PostScreenRouteProp = RouteProp<InsideTabParamList, 'Post'>;
+  const route = useRoute<PostScreenRouteProp>();
   const { item } = route.params; 
 
   const handleChatPress = () => {
-    //Chat feature implementation
+    console.log("DEBUG: Full item in Post.tsx =", item);
+    console.log("DEBUG: Navigating to Chat with postOwnerId =", item.postedBy);
+    console.log("DEBUG: Navigating to Chat with itemId =", item.id);
+    navigation.navigate('Chat', {
+      postOwnerId: item.postedBy, 
+      itemId: item.id,
+    });
   };
 
   return (
@@ -32,7 +41,7 @@ export default function Post() {
           <Text style={styles.infoLabel}>Date: </Text>
           <Text style={styles.infoText}>{new Date(item.date).toLocaleDateString()}</Text>
         </View>
-        <TouchableOpacity style={styles.chatButton} onPress={() => console.log('Chat button pressed')}>
+        <TouchableOpacity style={styles.chatButton} onPress={handleChatPress}>
           <MessageCircle size={24} color="#3b3b3b" />
           <Text style={styles.chatButtonText}>Chat with Reporter</Text>
         </TouchableOpacity>
