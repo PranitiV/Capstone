@@ -18,6 +18,7 @@ export const fetchPosts = async (searchTerm = "") => {
         post.description.trim().toLowerCase().includes(lowerSearchTerm)
       );
       return filteredPosts;
+      
 
     }
   }
@@ -25,7 +26,6 @@ export const fetchPosts = async (searchTerm = "") => {
   // If no cached result, query Firestore
   const postsQuery = query(collection(db, 'items'), orderBy('createdAt', 'desc'));
   const postsSnapshot = await getDocs(postsQuery);
-
 
   // Map and structure the posts data
   const posts = postsSnapshot.docs.map(doc => {
@@ -42,6 +42,7 @@ export const fetchPosts = async (searchTerm = "") => {
         type: 'lost',
         securityQuestion: data.securityQuestion || "no security question",
         securityAnswer: data.securityAnswer || "no security answer",
+        clarifaiData: data.conceptNames || []
     };
   });
 
