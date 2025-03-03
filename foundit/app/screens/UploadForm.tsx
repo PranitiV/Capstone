@@ -10,6 +10,10 @@ import { collection, addDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import styles from '../styles/UploadForm'
 
+interface Concept {
+  name: string;
+}
+
 export default function ReportLostItem() {
   const [image, setImage] = useState(null);
   const [itemName, setItemName] = useState('');
@@ -107,6 +111,43 @@ export default function ReportLostItem() {
       await uploadBytes(storageRef, blob);
       const downloadURL = await getDownloadURL(storageRef);
 
+      // Send image URL to Clarifai
+      const MODEL_ID = 'general-image-recognition';
+      const MODEL_VERSION_ID = 'aa7f35c01e0642fda5cf400f543e7c40';
+      const USER_ID = 'clarifai';       
+      const APP_ID = 'main';
+      const PAT = '3ac3c51554d84b4b8fd79f1c32a6d1d9';
+
+      const clarifaiResponse = await fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Key ' + PAT
+        },
+        body: JSON.stringify({
+          "user_app_id": {
+            "user_id": USER_ID,
+            "app_id": APP_ID
+          },
+          "inputs": [
+            {
+              "data": {
+                "image": {
+                  "url": downloadURL
+                }
+              }
+            }
+          ]
+        })
+      });
+
+      const clarifaiData = await clarifaiResponse.json();
+      const concepts = clarifaiData.outputs[0].data.concepts;
+
+      const conceptNames: string[] = concepts.map((concept: Concept) => concept.name);
+      console.log(conceptNames);
+
+      // Append Clarifai response to Firestore
       await addDoc(collection(db, "items"), {
         name: itemName,
         location: itemLocation,
@@ -118,6 +159,7 @@ export default function ReportLostItem() {
         isValuableItem,
         securityQuestion: isValuableItem ? securityQuestion : null,
         securityAnswer: isValuableItem ? securityAnswer : null,
+        clarifaiData: conceptNames
       });
 
       Alert.alert('Success', 'Item reported successfully!');
