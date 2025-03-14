@@ -228,6 +228,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
+
+  chatButton: {
+  position: 'absolute',
+  top: 50,
+  right: 70, // Adjust so it doesn’t overlap the profile button
+  zIndex: 20,
+  backgroundColor: '#4F46E5',
+  borderRadius: 30,
+  width: 40,
+  height: 40,
+  justifyContent: 'center',
+  alignItems: 'center',
+  elevation: 4,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.25,
+  shadowRadius: 4,
+},
+
 });
 
 export default styles;

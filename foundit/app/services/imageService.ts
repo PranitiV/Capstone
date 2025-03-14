@@ -41,7 +41,8 @@ export const fetchPosts = async (searchTerm = "") => {
         type: 'lost',
         securityQuestion: data.securityQuestion || "no security question",
         securityAnswer: data.securityAnswer || "no security answer",
-        clarifaiData: data.clarifaiData || []
+        clarifaiData: data.clarifaiData || [],
+        postedBy: data.postedBy,
     };
   });
 
