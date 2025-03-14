@@ -153,15 +153,6 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
   // Main chat UI
   return (
     <View style={styles.container}>
-      {/* Simple custom header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Chat</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
       {/* Message list */}
       <FlatList
         data={messages}

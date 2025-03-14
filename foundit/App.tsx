@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './FirebaseConfig';
 import { ChevronLeft as Back } from 'lucide-react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ChatScreen from './app/screens/ChatScreen';
 import ChatsList from './app/screens/ChatList';
 
@@ -39,7 +40,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const InsideStack = createBottomTabNavigator<InsideTabParamList>();
 
 function InsideLayout() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<InsideTabParamList>>();
   return (
     <InsideStack.Navigator initialRouteName="Details">
       <InsideStack.Screen name="Home" component={Home} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
@@ -104,7 +105,20 @@ function InsideLayout() {
         name="Chat"
         component={ChatScreen}
         options={{
-          headerShown: false,
+          headerShown: true,
+          tabBarStyle: { display: 'none' },
+          headerLeft: () => (
+            <Back
+            onPress={() =>
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'ChatsList' }],
+              })
+            }            
+            color="#000"
+              size={32}
+            />
+          ),
         }}
       />
     </InsideStack.Navigator>
