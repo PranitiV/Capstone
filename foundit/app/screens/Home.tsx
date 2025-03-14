@@ -1,10 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from '../styles/Home';
-import { View, Text, FlatList, SafeAreaView, TouchableOpacity, Animated, TextInput, StatusBar, ActivityIndicator } from 'react-native';
-import { MapPin, Calendar, Search, Plus, User } from 'lucide-react-native';
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  SafeAreaView, 
+  TouchableOpacity, 
+  TextInput, 
+  StatusBar, 
+  ActivityIndicator,
+  Animated,
+  Dimensions,
+} from 'react-native';
+import { MapPin, Calendar, Search, Plus, User, X } from 'lucide-react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
 import CachedImage from 'expo-cached-image';
+
+const { height } = Dimensions.get('window');
 
 export interface LostItem {
   id: string;
@@ -18,50 +31,109 @@ export interface LostItem {
   securityAnswer: string; 
   date: Date;
   type: string;
+  clarifaiData: string[];
 }
 
 export default function LostAndFoundApp() {
   const navigation = useNavigation<NavigationProp<any, any>>();
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const animatedHeight = useRef(new Animated.Value(0)).current;
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const searchInput = useRef("");
+  const [inputValue, setInputValue] = useState("");
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [suggestions] = useState<string[]>(["bottle", "keys", "wallet"]);
+  
+  // Animation values
+  const animatedTopPosition = useRef(new Animated.Value(0)).current;
+  const animatedTitleOpacity = useRef(new Animated.Value(1)).current;
+  const animatedSearchScale = useRef(new Animated.Value(1)).current;
+  const animatedFontSize = useRef(new Animated.Value(14)).current;
 
   useEffect(() => {
-    const loadPosts = async () => {
-      setIsLoading(true);
-      try {
-        const fetchedPosts = await fetchPosts(searchTerm);
-        setLostItems(fetchedPosts);
-      } catch (error) {
-        console.error("Error fetching posts: ", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (hasSearched) {
+      const loadPosts = async () => {
+        setIsLoading(true);
+        try {
+          const fetchedPosts = await fetchPosts(searchTerm);
+          setLostItems(fetchedPosts);
+        } catch (error) {
+          console.error("Error fetching posts: ", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-    loadPosts();
-  }, [searchTerm]);
+      // Animate search container to top
+      Animated.parallel([
+        Animated.timing(animatedTopPosition, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedTitleOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedSearchScale, {
+          toValue: 0.9,
+          duration: 500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedFontSize, {
+          toValue: 16,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+      ]).start();
 
-  const handleSearchChange = (text: string) => {
-    searchInput.current = text;
-    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+      loadPosts();
+    } else {
+      // Reset animations when search is cleared
+      Animated.parallel([
+        Animated.timing(animatedTopPosition, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedTitleOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedSearchScale, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedFontSize, {
+          toValue: 30,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [hasSearched, searchTerm, animatedTopPosition, animatedTitleOpacity, animatedSearchScale, animatedFontSize, inputValue]);
 
-    debounceTimeout.current = setTimeout(() => {
-      setSearchTerm(searchInput.current);
-    }, 400); // Debounce delay
+  const handleSearch = () => {
+    if (inputValue.trim()) {
+      setSearchTerm(inputValue);
+      setHasSearched(true);
+    }
   };
 
-  const toggleSearch = () => {
-    setIsSearchVisible(!isSearchVisible);
-    Animated.timing(animatedHeight, {
-      toValue: isSearchVisible ? 0 : 50,
-      duration: 700,
-      useNativeDriver: false,
-    }).start();
+  const handleSuggestionClick = (suggestion: string) => {
+    setInputValue(suggestion);
+    setSearchTerm(suggestion);
+    setHasSearched(true);
+  };
+
+  const clearSearch = () => {
+    setInputValue("");
+    setSearchTerm("");
+    setHasSearched(false);
+    setLostItems([]);
   };
   
   const ItemCard = React.memo(({ item }: { item: LostItem }) => {
@@ -86,17 +158,18 @@ export default function LostAndFoundApp() {
 
           <View style={styles.cardContent}>
             <Text style={styles.title}>{item.name || 'Unknown Item'}</Text>
-
-            <Text style={styles.description} numberOfLines={2}>{item.description || 'No description available'}</Text>
-
+            <Text style={styles.description} numberOfLines={2}>
+              {item.description || 'No description available'}
+            </Text>
             <View style={styles.infoContainer}>
               <MapPin size={16} color="#666" />
               <Text style={styles.infoText}>{item.location || 'Unknown Location'}</Text>
             </View>
-
             <View style={styles.infoContainer}>
               <Calendar size={16} color="#666" />
-              <Text style={styles.infoText}>{new Date(item.date).toLocaleDateString() || 'Unknown Date'}</Text>
+              <Text style={styles.infoText}>
+                {new Date(item.date).toLocaleDateString() || 'Unknown Date'}
+              </Text>
             </View>
           </View>
 
@@ -108,43 +181,102 @@ export default function LostAndFoundApp() {
     );
   });
 
+  // Calculate the top position based on animation value
+  const topPosition = animatedTopPosition.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['40%', '10%'], // Move from center to top
+  });
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>foundIt</Text>
-        <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={toggleSearch}>
-            <Search size={24} color="#000" />
+      <StatusBar barStyle="dark-content" />
+      
+      <TouchableOpacity 
+        style={styles.profileButton} 
+        onPress={() => navigation.navigate('Profile')}
+      >
+        <User size={24} color="#FFF" />
+      </TouchableOpacity>
+      
+      <Animated.View 
+        style={[
+          styles.searchWrapper,
+          {
+            top: topPosition,
+            backgroundColor: hasSearched ? '#f5f5f5' : 'transparent',
+            paddingTop: hasSearched ? 20 : 0,
+            paddingBottom: hasSearched ? 20 : 0,
+          },
+        ]}
+      >
+        <Animated.View style={[styles.newHeader, { opacity: animatedTitleOpacity }]}>
+          <Animated.Text style={[styles.newHeaderTitle, { fontSize: animatedFontSize }]}>
+            Find Your Items
+          </Animated.Text>
+        </Animated.View>
+        
+        <Animated.View 
+          style={[
+            styles.searchContainer,
+            { transform: [{ scale: animatedSearchScale }] }
+          ]}
+        >
+          <View style={styles.searchInputContainer}>
+            <Search size={20} color="#999" style={styles.searchIcon} />
+            <TextInput
+              style={styles.newSearchInput}
+              placeholder="Search for an item..."
+              placeholderTextColor="#999"
+              value={inputValue}
+              onChangeText={setInputValue}
+              onSubmitEditing={handleSearch}
+            />
+            {inputValue.length > 0 && (
+              <TouchableOpacity onPress={clearSearch}>
+                <X size={20} color="#999" />
+              </TouchableOpacity>
+            )}
+          </View>
+          <TouchableOpacity 
+            style={styles.searchButton}
+            onPress={handleSearch}
+          >
+            <Text style={styles.searchButtonText}>Search</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Profile')}>
-            <User size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-      </View>
-      <Animated.View style={[styles.searchBox, { height: animatedHeight }]}>
-        {isSearchVisible && (
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search..."
-            placeholderTextColor="#999"
-            onChangeText={handleSearchChange}
-          />
+        </Animated.View>
+        
+        {!hasSearched && suggestions.length > 0 && (
+          <View style={styles.filtersContainer}>
+            {suggestions.map(suggestion => (
+              <TouchableOpacity 
+                key={suggestion} 
+                style={styles.filterChip}
+                onPress={() => handleSuggestionClick(suggestion)}
+              >
+                <Text style={styles.filterText}>{suggestion}</Text>
+                <X size={16} color="#6B7280" />
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
       </Animated.View>
-      <StatusBar barStyle="dark-content" />
-      {isLoading ? (
+      
+      {hasSearched && isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3b3b3b" />
           <Text style={styles.loadingText}>Loading items...</Text>
         </View>
-      ) : (
-        <FlatList
-          data={lostItems}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => <ItemCard item={item} />}
-          contentContainerStyle={styles.list}
-        />
-      )}
+      ) : hasSearched ? (
+        <View style={styles.resultsContainer}>
+          <FlatList
+            data={lostItems}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => <ItemCard item={item} />}
+            contentContainerStyle={styles.list}
+          />
+        </View>
+      ) : null}
+      
       <View style={styles.reportContainer}>
         <Text style={styles.reportText}>Report a missing item</Text>
         <TouchableOpacity 

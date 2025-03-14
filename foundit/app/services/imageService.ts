@@ -9,17 +9,16 @@ export const fetchPosts = async (searchTerm = "") => {
   const lowerSearchTerm = searchTerm.trim().toLowerCase();
 
   const cachedResult = cache.get(cacheKey);
-  if(cachedResult){
-    if(lowerSearchTerm == ""){
+  if (cachedResult) {
+    if (lowerSearchTerm === "") {
       return cachedResult;
     } else {
-      const filteredPosts = cachedResult.filter((post: { name: string; description: string; }) =>
+      const filteredPosts = cachedResult.filter((post: { name: string; description: string; clarifaiData: string[] }) =>
         post.name.trim().toLowerCase().includes(lowerSearchTerm) ||
-        post.description.trim().toLowerCase().includes(lowerSearchTerm)
+        post.description.trim().toLowerCase().includes(lowerSearchTerm) ||
+        post.clarifaiData.some((concept: string) => concept.toLowerCase().includes(lowerSearchTerm))
       );
       return filteredPosts;
-      
-
     }
   }
 
@@ -42,7 +41,7 @@ export const fetchPosts = async (searchTerm = "") => {
         type: 'lost',
         securityQuestion: data.securityQuestion || "no security question",
         securityAnswer: data.securityAnswer || "no security answer",
-        clarifaiData: data.conceptNames || []
+        clarifaiData: data.clarifaiData || []
     };
   });
 
