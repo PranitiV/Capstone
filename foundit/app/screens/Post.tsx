@@ -32,7 +32,7 @@ type PostRouteParams = {
     securityAnswer: string;
     date: Date;
     type: string;
-    postedBy?: string; // Add postedBy for "Chat with Reporter"
+    postedBy?: string;
   };
 };
 
@@ -199,7 +199,7 @@ export default function Post() {
           {/* Chat with Reporter Button */}
           <TouchableOpacity style={styles.claimButton} onPress={handleChatPress}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <MessageCircle size={24} color="#3b3b3b" />
+              {/* <MessageCircle size={24} color="#3b3b3b" /> */}
               <Text style={styles.claimButtonText}>Chat with Reporter</Text>
             </View>
           </TouchableOpacity>

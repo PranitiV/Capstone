@@ -309,11 +309,12 @@ export default function LostAndFoundApp() {
 
       {/* Chat List Icon from Incoming Changes */}
       <TouchableOpacity
-        style={[styles2.iconButton, { position: "absolute", top: 55, right: 70 }]}
+        style={styles.chatButton}
         onPress={() => navigation.navigate("ChatsList")}
       >
-        <MessageCircle size={24} color="#000" />
+        <MessageCircle size={24} color="#FFF" />
       </TouchableOpacity>
+
 
       {/* "Report a missing item" button at bottom */}
       <View style={styles.reportContainer}>
