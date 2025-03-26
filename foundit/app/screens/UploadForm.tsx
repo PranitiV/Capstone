@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {View, Text, TextInput, TouchableOpacity, Image, ScrollView, Alert, Switch} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -14,13 +14,18 @@ interface Concept {
   name: string;
 }
 
+interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
 export default function ReportLostItem() {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<string | null>(null);
   const [itemName, setItemName] = useState('');
   const [itemLocation, setItemLocation] = useState('');
   const [itemLocationDescription, setItemLocationDescription] = useState('');
   const [itemDescription, setItemDescription] = useState('');
-  const [currentLocation, setCurrentLocation] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(null);
   const [uploading, setUploading] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [isValuableItem, setIsValuableItem] = useState(false);
@@ -28,6 +33,61 @@ export default function ReportLostItem() {
   const [securityAnswer, setSecurityAnswer] = useState('');
   const [showInfo, setShowInfo] = useState(false);
   const mapRef = useRef(null);
+
+  useEffect(() => {
+    const fetchCaption = async () => {
+      if (!image) return;
+
+      try {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        const filename = `lost_item_${Date.now()}`;
+        const storageRef = ref(storage, `images/${filename}`);
+
+        await uploadBytes(storageRef, blob);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        // Caption generation API call
+        const SECOND_PAT = 'f1a8c1317b514ccab0d2c118360a39c5';
+        const SECOND_USER_ID = 'salesforce';       
+        const SECOND_APP_ID = 'blip';
+        const SECOND_MODEL_ID = 'general-english-image-caption-blip';
+        const SECOND_MODEL_VERSION_ID = 'cdb690f13e62470ea6723642044f95e4';
+
+        const secondApiResponse = await fetch("https://api.clarifai.com/v2/models/" + SECOND_MODEL_ID + "/versions/" + SECOND_MODEL_VERSION_ID + "/outputs", {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Key ' + SECOND_PAT
+          },
+          body: JSON.stringify({
+            "user_app_id": {
+              "user_id": SECOND_USER_ID,
+              "app_id": SECOND_APP_ID
+            },
+            "inputs": [
+              {
+                "data": {
+                  "image": {
+                    "url": downloadURL
+                  }
+                }
+              }
+            ]
+          })
+        });
+
+        const secondApiData = await secondApiResponse.json();
+        const caption = secondApiData.outputs[0].data.text.raw;
+        setItemDescription(caption);
+      } catch (error) {
+        console.error('Error fetching caption:', error);
+      }
+    };
+
+    fetchCaption();
+
+  }, [image]); // Dependency array with 'image' to trigger on image change
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -111,7 +171,7 @@ export default function ReportLostItem() {
       await uploadBytes(storageRef, blob);
       const downloadURL = await getDownloadURL(storageRef);
 
-      // Send image URL to Clarifai
+      // First API call to Clarifai
       const MODEL_ID = 'general-image-recognition';
       const MODEL_VERSION_ID = 'aa7f35c01e0642fda5cf400f543e7c40';
       const USER_ID = 'clarifai';       
@@ -143,9 +203,7 @@ export default function ReportLostItem() {
 
       const clarifaiData = await clarifaiResponse.json();
       const concepts = clarifaiData.outputs[0].data.concepts;
-
       const conceptNames: string[] = concepts.map((concept: Concept) => concept.name);
-      console.log(conceptNames);
 
       // Append Clarifai response to Firestore
       await addDoc(collection(db, "items"), {
