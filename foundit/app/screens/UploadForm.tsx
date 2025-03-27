@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {View, Text, TextInput, TouchableOpacity, Image, ScrollView, Alert, Switch} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Image, ScrollView, Alert, Switch, ActivityIndicator} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
@@ -33,12 +33,14 @@ export default function ReportLostItem() {
   const [securityQuestion, setSecurityQuestion] = useState('');
   const [securityAnswer, setSecurityAnswer] = useState('');
   const [showInfo, setShowInfo] = useState(false);
+  const [isLoadingCaption, setIsLoadingCaption] = useState(false);
   const mapRef = useRef(null);
 
   useEffect(() => {
     const fetchCaption = async () => {
       if (!image) return;
 
+      setIsLoadingCaption(true);
       try {
         const response = await fetch(image);
         const blob = await response.blob();
@@ -83,6 +85,8 @@ export default function ReportLostItem() {
         setItemDescription(caption);
       } catch (error) {
         console.error('Error fetching caption:', error);
+      } finally {
+        setIsLoadingCaption(false);
       }
     };
 
@@ -110,6 +114,21 @@ export default function ReportLostItem() {
   };
 
   const takePhoto = async () => {
+    // Request camera permissions
+    const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (cameraStatus !== 'granted') {
+      Alert.alert(
+        'Permission Required',
+        'Please grant camera access to take photos.',
+        [
+          { text: 'OK', onPress: () => console.log('Camera permission denied') }
+        ]
+      );
+      return;
+    }
+
+    // If we have permission, proceed with taking photo
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: "images",
       allowsEditing: false,
@@ -378,13 +397,20 @@ export default function ReportLostItem() {
       />
 
       <Text style={styles.label}>Item Description</Text>
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        value={itemDescription}
-        onChangeText={setItemDescription}
-        placeholder="Enter item description"
-        multiline
-      />
+      {isLoadingCaption ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size={24} color="#636363" />
+          <Text style={styles.loadingText}>Generating description...</Text>
+        </View>
+      ) : (
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={itemDescription}
+          onChangeText={setItemDescription}
+          placeholder="Enter item description"
+          multiline
+        />
+      )}
 
         <View style={styles.switchContainer}>
         <Text style={styles.label}>Is this a valuable item?</Text>

@@ -166,4 +166,18 @@ export default styles = StyleSheet.create({
       alignItems: 'center',
       height: 40, // Adjust this value as needed
     },
+    loadingContainer: {
+      padding: 16,
+      backgroundColor: '#f3f4f6',
+      borderRadius: 8,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      marginBottom: 16,
+    },
+    loadingText: {
+      color: '#636363',
+      fontSize: 14,
+    },
 });
