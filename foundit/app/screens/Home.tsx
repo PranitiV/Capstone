@@ -192,12 +192,24 @@ export default function LostAndFoundApp() {
             <Text style={styles.description} numberOfLines={2}>
               {item.description || "No description available"}
             </Text>
-            <View style={styles.infoContainer}>
-              <MapPin size={16} color="#666" />
-              <Text style={styles.infoText}>
-                {item.location || "Unknown Location"}
-              </Text>
-            </View>
+            {!item.isValuableItem && (
+              <View style={styles.infoContainer}>
+                <MapPin size={16} color="#666" />
+                <Text style={styles.infoText}>
+                  {item.location || "Unknown Location"}
+                </Text>
+              </View>
+            )}
+            
+            {/* Show "Location Hidden" for valuable items */}
+            {item.isValuableItem && (
+              <View style={styles.infoContainer}>
+                <MapPin size={16} color="#666" />
+                <Text style={[styles.infoText, { fontStyle: 'italic', color: '#999' }]}>
+                  Location hidden
+                </Text>
+              </View>
+            )}
             <View style={styles.infoContainer}>
               <Calendar size={16} color="#666" />
               <Text style={styles.infoText}>
