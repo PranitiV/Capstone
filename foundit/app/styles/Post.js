@@ -16,7 +16,7 @@ export default StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: 250,
+    height: 325,
     borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 20,

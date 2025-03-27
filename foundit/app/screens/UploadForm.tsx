@@ -98,7 +98,7 @@ export default function ReportLostItem() {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -111,8 +111,8 @@ export default function ReportLostItem() {
 
   const takePhoto = async () => {
     let result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
+      mediaTypes: "images",
+      allowsEditing: false,
       quality: 1,
     });
 

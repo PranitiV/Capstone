@@ -98,7 +98,7 @@ export default function LostAndFoundApp() {
           useNativeDriver: false,
         }),
         Animated.timing(animatedFontSize, {
-          toValue: 16,
+          toValue: 20,
           duration: 300,
           useNativeDriver: false,
         }),

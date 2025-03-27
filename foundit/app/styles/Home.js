@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
     width: '100%',
-    height: 200,
+    height: 300,
   },
   imagePlaceholder: {
     position: 'absolute',
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 200,
+    height: 300,
   },
   hiddenImage: {
     opacity: 0,
