@@ -142,7 +142,15 @@ export default function ReportLostItem() {
       
       if (response.data.status === 'OK') {
         const addressComponents = response.data.results[0].address_components;
-        const buildingName = addressComponents.find(component => component.types.includes('premise'))?.long_name || 'Unknown location';
+        
+        // Check for multiple possible location types
+        const buildingName = addressComponents.find(component =>
+          component.types.includes('premise') || 
+          component.types.includes('establishment') ||
+          component.types.includes('point_of_interest') ||
+          component.types.includes('street_address')
+        )?.long_name || response.data.results[0]?.formatted_address || 'Unknown location';
+
         setItemLocation(buildingName);
       } else {
         Alert.alert('Error', 'Unable to fetch location details');
@@ -154,10 +162,38 @@ export default function ReportLostItem() {
     }
   };
 
-  const handleMarkerDrag = (e) => {
+
+  const handleMarkerDrag = async (e) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
     setCurrentLocation({ latitude, longitude });
-    setItemLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+    
+    try {
+      // Reverse geocoding for the new marker position
+      const apiKey = 'AIzaSyAyefh9BC1ct6tgi0YAtEs3iPqp_ZxnCD0';
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
+      );
+      
+      if (response.data.status === 'OK') {
+        const addressComponents = response.data.results[0].address_components;
+        
+        // Check for multiple possible location types
+        const buildingName = addressComponents.find(component =>
+          component.types.includes('premise') || 
+          component.types.includes('establishment') ||
+          component.types.includes('point_of_interest') ||
+          component.types.includes('street_address')
+        )?.long_name || response.data.results[0]?.formatted_address || 'Unknown location';
+
+        setItemLocation(buildingName);
+      } else {
+        setItemLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+      }
+    } catch (error) {
+      // Fallback to coordinates if geocoding fails
+      setItemLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+      console.error('Error fetching location details:', error);
+    }
   };
 
   const handleSubmit = async () => {
