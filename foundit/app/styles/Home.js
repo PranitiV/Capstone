@@ -17,7 +17,8 @@ const styles = StyleSheet.create({
   // Results container
   resultsContainer: {
     flex: 1,
-    marginTop: 150, // Space for the search bar when it moves to top
+    marginTop: 30, // Space for the search bar when it moves to top
+    paddingTop: 150,
   },
   // New header styling to match the design
   newHeader: {
@@ -33,7 +34,6 @@ const styles = StyleSheet.create({
   // New search styling
   searchContainer: {
     flexDirection: 'row',
-    marginBottom: 15,
     width: '100%',
     backgroundColor: 'transparent',
   },
