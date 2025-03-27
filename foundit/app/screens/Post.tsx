@@ -55,6 +55,7 @@ export default function Post() {
   // Add state for image loading - explicitly set to true initially
   const [imageLoading, setImageLoading] = useState(true);
   const [itemType, setItemType] = useState(item.type);
+  const [showFullImage, setShowFullImage] = useState(false);
 
   // Fetch security details if the item is valuable
   useEffect(() => {
@@ -170,16 +171,22 @@ export default function Post() {
               <ActivityIndicator size="large" color="#007AFF" />
             </View>
           )}
-          <Image 
-            source={{ uri: item.imageUrl }} 
-            style={styles.image}
-            resizeMode="cover" 
-            onLoadStart={() => setImageLoading(true)}
-            onLoad={() => setImageLoading(false)}
-            onError={() => setImageLoading(false)}
-          />
+          <TouchableOpacity 
+            onPress={() => setShowFullImage(true)}
+            activeOpacity={0.75}
+          >
+            <Image 
+              source={{ uri: item.imageUrl }} 
+              style={styles.image}
+              resizeMode="cover" 
+              onLoadStart={() => setImageLoading(true)}
+              onLoad={() => setImageLoading(false)}
+              onError={() => setImageLoading(false)}
+            />
+          </TouchableOpacity>
+          
         </View>
-
+        <Text style={styles.imageHint}>Hold to view entire image</Text>
         <View style={styles.content}>
           {/* Description Section */}
           <View style={styles.descriptionContainer}>
@@ -271,6 +278,25 @@ export default function Post() {
             </TouchableOpacity>
           </View>
         </View>
+      </Modal>
+
+      {/* Add this Modal component */}
+      <Modal
+        visible={showFullImage}
+        transparent={true}
+        onRequestClose={() => setShowFullImage(false)}
+      >
+        <TouchableOpacity 
+          style={styles.fullImageModal} 
+          activeOpacity={1} 
+          onPress={() => setShowFullImage(false)}
+        >
+          <Image
+            source={{ uri: item.imageUrl }}
+            style={styles.fullImage}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
       </Modal>
     </SafeAreaView>
   );

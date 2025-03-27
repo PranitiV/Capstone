@@ -19,7 +19,7 @@ export default StyleSheet.create({
     height: 325,
     borderRadius: 10,
     overflow: 'hidden',
-    marginBottom: 20,
+    marginBottom: 5,
   },
   image: {
     width: '100%',
@@ -167,5 +167,22 @@ export default StyleSheet.create({
     backgroundColor: '#1E3765',
     zIndex: 1,
     borderRadius: 8,
+  },
+  fullImageModal: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imageHint: {
+    textAlign: 'center',
+    color: '#666',
+    fontSize: 12,
+    marginBottom: 15,
+    fontStyle: 'italic',
   },
 }); 
