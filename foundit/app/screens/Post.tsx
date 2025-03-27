@@ -15,7 +15,7 @@ import {
 import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { MapPin, Calendar, Info, ExternalLink, MessageCircle } from 'lucide-react-native';
 import { db } from '../../FirebaseConfig';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import styles from '../styles/Post';
 import { InsideTabParamList } from '../../App';
 
@@ -54,6 +54,7 @@ export default function Post() {
   const [showInfo, setShowInfo] = useState(false);
   // Add state for image loading - explicitly set to true initially
   const [imageLoading, setImageLoading] = useState(true);
+  const [itemType, setItemType] = useState(item.type);
 
   // Fetch security details if the item is valuable
   useEffect(() => {
@@ -80,6 +81,17 @@ export default function Post() {
 
     fetchSecurityDetails();
   }, [item.id, item.isValuableItem]);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, 'items', item.id), (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        setItemType(data.type);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [item.id]);
 
   // Handle the answer submission for the security question
   const handleAnswerSubmit = () => {
@@ -217,7 +229,7 @@ export default function Post() {
           </View>
 
           {/* Claim Button */}
-          {!isClaimed && (
+          {itemType !== 'claimed' && (
             <TouchableOpacity style={styles.claimButton} onPress={handleClaimPress}>
               <Text style={styles.claimButtonText}>Claim Item</Text>
             </TouchableOpacity>
