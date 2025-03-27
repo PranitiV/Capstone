@@ -36,7 +36,7 @@ export default StyleSheet.create({
     marginVertical: 5,
   },
   myMessage: {
-    backgroundColor: '#DCF8C6',
+    backgroundColor: 'rgba(13, 49, 116, 0.3)',
     alignSelf: 'flex-end',
   },
   theirMessage: {

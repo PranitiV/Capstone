@@ -89,6 +89,7 @@ function InsideLayout() {
         component={ChatsList}
         options={{
           headerShown: true,
+          headerTitle: '',
           headerLeft: () => (
             <Back
               onPress={() => navigation.goBack()}
@@ -97,7 +98,6 @@ function InsideLayout() {
               size={32}
             />
           ),
-          headerTitle: 'My Chats', 
           tabBarStyle: { display: 'none' },
         }}
       />
@@ -106,6 +106,7 @@ function InsideLayout() {
         component={ChatScreen}
         options={{
           headerShown: true,
+          headerTitle: '',
           tabBarStyle: { display: 'none' },
           headerLeft: () => (
             <Back
