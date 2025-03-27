@@ -26,6 +26,8 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { fetchPosts } from '../services/imageService';
 import CachedImage from 'expo-cached-image';
 import { InsideTabParamList } from '../../App';
+import { collection, onSnapshot, doc } from "firebase/firestore";
+import { db } from "../../FirebaseConfig";
 
 const { height } = Dimensions.get('window');
 
@@ -153,6 +155,17 @@ export default function LostAndFoundApp() {
   // Renders each lost item
   const ItemCard = React.memo(({ item }: { item: LostItem }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [itemType, setItemType] = useState(item.type);
+
+    useEffect(() => {
+      const unsubscribe = onSnapshot(doc(db, 'items', item.id), (doc) => {
+        if (doc.exists()) {
+          setItemType(doc.data().type);
+        }
+      });
+
+      return () => unsubscribe();
+    }, [item.id])
 
     return (
       <TouchableOpacity
@@ -193,13 +206,13 @@ export default function LostAndFoundApp() {
             </View>
           </View>
 
-          <View
-            style={[
-              styles.badge,
-              item.type === "lost" ? styles.lostBadge : styles.foundBadge,
-            ]}
-          >
-            <Text style={styles.badgeText}>{item.type || "Unknown Type"}</Text>
+          <View style={[
+            styles.badge, 
+            itemType === 'claimed' ? styles.claimedBadge : styles.lostBadge
+          ]}>
+            <Text style={styles.badgeText}>
+              {itemType === 'claimed' ? 'claimed' : 'lost'}
+            </Text>
           </View>
         </View>
       </TouchableOpacity>

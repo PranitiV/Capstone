@@ -210,6 +210,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#3b3b3b',
   },
+  claimedBadge: {
+    backgroundColor: '#50C878',
+    color: '#000000'
+  },
   // Profile button in top right
   profileButton: {
     position: 'absolute',
