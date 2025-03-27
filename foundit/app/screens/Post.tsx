@@ -149,7 +149,7 @@ export default function Post() {
           </View>
 
           {/* Valuable Item Logic */}
-          {item.isValuableItem && securityQuestion && !isAnswerCorrect && !isClaimed && (
+          {item.isValuableItem === true && (
             <View style={styles.disclaimerContainer}>
               <View style={styles.disclaimerContent}>
                 <Text style={styles.disclaimerText}>
@@ -169,7 +169,7 @@ export default function Post() {
           )}
 
           {/* Location Section (if security Q answered or item not valuable) */}
-          {isAnswerCorrect && (isClaimed || !item.isValuableItem) && (
+          {(item.isValuableItem !== true || isAnswerCorrect) && (
             <View style={styles.infoContainer}>
               <MapPin size={20} color="#4a4a4a" />
               <Text style={styles.infoLabel}>Location: </Text>
