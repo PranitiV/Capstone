@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Modal,
   Linking,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { MapPin, Calendar, Info, ExternalLink, MessageCircle } from 'lucide-react-native';
@@ -51,6 +52,8 @@ export default function Post() {
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [isClaimed, setIsClaimed] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  // Add state for image loading - explicitly set to true initially
+  const [imageLoading, setImageLoading] = useState(true);
 
   // Fetch security details if the item is valuable
   useEffect(() => {
@@ -92,7 +95,7 @@ export default function Post() {
 
   // If the user tries to claim the item without answering (if valuable)
   const handleClaimPress = () => {
-    if (item.isValuableItem && !isAnswerCorrect) {
+    if (item.isValuableItem === true) {
       setShowSecurityModal(true);
     } else {
       handleClaimItem();
@@ -138,7 +141,31 @@ export default function Post() {
       >
         <Text style={styles.title}>{item.name}</Text>
         <View style={styles.imageContainer}>
-          <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="cover" />
+          {/* Loading spinner - using inline styles to ensure visibility */}
+          {imageLoading && (
+            <View style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: '#f5f5f5',
+              zIndex: 10,
+              borderRadius: 8,
+            }}>
+              <ActivityIndicator size="large" color="#007AFF" />
+            </View>
+          )}
+          <Image 
+            source={{ uri: item.imageUrl }} 
+            style={styles.image}
+            resizeMode="cover" 
+            onLoadStart={() => setImageLoading(true)}
+            onLoad={() => setImageLoading(false)}
+            onError={() => setImageLoading(false)}
+          />
         </View>
 
         <View style={styles.content}>
@@ -199,7 +226,6 @@ export default function Post() {
           {/* Chat with Reporter Button */}
           <TouchableOpacity style={styles.claimButton} onPress={handleChatPress}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {/* <MessageCircle size={24} color="#3b3b3b" /> */}
               <Text style={styles.claimButtonText}>Chat with Reporter</Text>
             </View>
           </TouchableOpacity>

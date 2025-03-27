@@ -85,7 +85,7 @@ export default StyleSheet.create({
     padding: 4,
   },
   claimButton: {
-    backgroundColor: '#4a4a4a',
+    backgroundColor: '#1E3765',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
@@ -155,5 +155,17 @@ export default StyleSheet.create({
     color: '#007AFF',
     fontSize: 14,
     textDecorationLine: 'underline',
+  },
+  loaderContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1E3765',
+    zIndex: 1,
+    borderRadius: 8,
   },
 }); 
