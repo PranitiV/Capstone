@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     alignItems: 'center',
     paddingHorizontal: 20,
+    marginBottom: 15
   },
   // Results container
   resultsContainer: {
@@ -36,6 +37,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     backgroundColor: 'transparent',
+    marginBottom: 15,
   },
   searchInputContainer: {
     flex: 1,
@@ -71,7 +73,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  // Filter chips
   filtersContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -94,6 +95,7 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     marginRight: 8,
   },
+
   // Original styles preserved
   list: {
     padding: 16,
