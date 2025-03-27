@@ -9,6 +9,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import styles from '../styles/UploadForm'
+import axios from 'axios';
 
 interface Concept {
   name: string;
@@ -87,7 +88,13 @@ export default function ReportLostItem() {
 
     fetchCaption();
 
-  }, [image]); // Dependency array with 'image' to trigger on image change
+  }, [image]); 
+
+  useEffect(() => {
+    if (currentLocation) {
+      getCurrentLocation();
+    }
+  }, [currentLocation]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -128,7 +135,19 @@ export default function ReportLostItem() {
         longitude: location.coords.longitude,
       };
       setCurrentLocation(newLocation);
-      setItemLocation(`${newLocation.latitude.toFixed(6)}, ${newLocation.longitude.toFixed(6)}`);
+
+      // Reverse geocoding to get the name of the closest building
+      const apiKey = 'AIzaSyAyefh9BC1ct6tgi0YAtEs3iPqp_ZxnCD0';
+      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${newLocation.latitude},${newLocation.longitude}&key=${apiKey}`);
+      
+      if (response.data.status === 'OK') {
+        const addressComponents = response.data.results[0].address_components;
+        const buildingName = addressComponents.find(component => component.types.includes('premise'))?.long_name || 'Unknown location';
+        setItemLocation(buildingName);
+      } else {
+        Alert.alert('Error', 'Unable to fetch location details');
+      }
+
       setShowMap(true);
     } catch (error) {
       Alert.alert('Error getting location', error.message);

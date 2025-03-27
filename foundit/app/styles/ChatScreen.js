@@ -67,7 +67,7 @@ export default StyleSheet.create({
   sendButton: {
     width: 50,
     borderRadius: 20,
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#002A5C',
     justifyContent: 'center',
     alignItems: 'center',
   },

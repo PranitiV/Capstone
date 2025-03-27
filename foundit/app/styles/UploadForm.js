@@ -56,7 +56,7 @@ export default styles = StyleSheet.create({
       marginHorizontal: 5,
     },
     imageButtonText: {
-      color: '#4F46E5',
+      color: '#002A5C',
       fontWeight: '600',
     },
     imagePlaceholderText: {
@@ -105,7 +105,7 @@ export default styles = StyleSheet.create({
       textAlignVertical: 'top',
     },
     submitButton: {
-      backgroundColor: '#4F46E5',
+      backgroundColor: '#002A5C',
       borderRadius: 8,
       padding: 15,
       alignItems: 'center',

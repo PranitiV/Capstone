@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     color: '#1F2937',
   },
   searchButton: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#1E3765',
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     right: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: 'rgb(30, 55, 101, 0.2)',
     borderRadius: 30,
     paddingLeft: 16,
     paddingRight: 4,
@@ -188,11 +188,11 @@ const styles = StyleSheet.create({
   reportText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4F46E5',
+    color: '#002A5C',
     marginRight: 8,
   },
   reportButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#002A5C',
     borderRadius: 30,
     width: 40,
     height: 40,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     top: 50,
     right: 20,
     zIndex: 20, // Increased to be above searchWrapper
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#002A5C',
     borderRadius: 30,
     width: 40,
     height: 40,
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   top: 50,
   right: 70, // Adjust so it doesn’t overlap the profile button
   zIndex: 20,
-  backgroundColor: '#4F46E5',
+  backgroundColor: '#002A5C',
   borderRadius: 30,
   width: 40,
   height: 40,
